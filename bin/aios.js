@@ -9,6 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const templateDir = path.join(rootDir, 'templates', 'default', '.ai');
+const initPromptPath = path.join(rootDir, 'prompts', 'init-project-memory.md');
 
 const REQUIRED_FILES = [
   'README.md',
@@ -43,6 +44,12 @@ function main() {
     case 'close':
       closeSession();
       break;
+    case 'prompt':
+      prompt();
+      break;
+    case 'bootstrap':
+      bootstrap();
+      break;
     case 'help':
     case '--help':
     case '-h':
@@ -61,6 +68,7 @@ function init() {
   const cwd = process.cwd();
   const targetDir = path.join(cwd, '.ai');
   const force = flags.has('--force');
+  const withPrompt = flags.has('--with-prompt');
 
   if (!fs.existsSync(templateDir)) {
     fail(`Template nao encontrado: ${templateDir}`);
@@ -72,9 +80,41 @@ function init() {
 
   copyDirectory(templateDir, targetDir, { overwrite: force });
 
+  if (withPrompt) {
+    writeAgentPrompt(cwd);
+  }
+
   console.log('AIOS inicializado em .ai/');
-  console.log('Proximo passo: peca a um agente para auditar o repositorio e preencher os arquivos com fatos reais.');
-  console.log('Sugestao: leia prompts/init-project-memory.md no repo AIOS.');
+  console.log('Isso criou a estrutura da memoria. Para preencher com inteligencia contextual, use uma IA no projeto.');
+  console.log('Proximo passo recomendado dentro do Codex/Claude/Cursor:');
+  console.log('  aios prompt');
+}
+
+function bootstrap() {
+  const cwd = process.cwd();
+  const targetDir = path.join(cwd, '.ai');
+  const force = flags.has('--force');
+
+  if (!fs.existsSync(targetDir) || force) {
+    copyDirectory(templateDir, targetDir, { overwrite: force });
+  }
+
+  const promptFile = writeAgentPrompt(cwd);
+  console.log('AIOS bootstrap concluido.');
+  console.log('- Estrutura .ai/ pronta.');
+  console.log(`- Prompt para agente criado em: ${path.relative(cwd, promptFile)}`);
+  console.log('');
+  console.log('Agora peça ao agente de IA:');
+  console.log(`Leia ${path.relative(cwd, promptFile)} e execute as instrucoes.`);
+}
+
+function prompt() {
+  if (!fs.existsSync(initPromptPath)) {
+    fail(`Prompt nao encontrado: ${initPromptPath}`);
+  }
+
+  const content = fs.readFileSync(initPromptPath, 'utf8');
+  console.log(content);
 }
 
 function audit() {
@@ -188,7 +228,7 @@ function closeSession() {
 }
 
 function help() {
-  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force]                         Cria a memoria .ai/ no projeto atual\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessao e atualiza memoria\n  aios --version                              Mostra versao\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado:\n  1. Entre no repositorio do projeto\n  2. Rode: aios init\n  3. Peca a um agente para auditar e preencher a memoria\n  4. Antes de cada sessao, leia .ai/HANDOFF.md e .ai/SESSION.md\n  5. Ao encerrar, rode: aios close --summary \"o que foi feito\" --next \"proximo passo\"`);
+  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memoria .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios prompt                                 Imprime o prompt para preencher a memoria com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessao e atualiza memoria\n  aios --version                              Mostra versao\n  aios --help                                 Mostra ajuda\n\nFluxo sem IA:\n  1. Rode: aios init\n  2. Abra uma IA no projeto\n  3. Rode: aios prompt e cole/mande a saida para a IA\n\nFluxo dentro de uma IA de CLI:\n  1. Abra Codex/Claude/Cursor no projeto\n  2. Peça: rode npx @alvaro-alencar/aios bootstrap e depois siga o prompt gerado\n  3. Ao encerrar, rode: aios close --summary \"o que foi feito\" --next \"proximo passo\"`);
 }
 
 function version() {
@@ -214,6 +254,17 @@ function copyDirectory(source, target, options = {}) {
 
     fs.copyFileSync(sourcePath, targetPath);
   }
+}
+
+function writeAgentPrompt(cwd) {
+  if (!fs.existsSync(initPromptPath)) {
+    fail(`Prompt nao encontrado: ${initPromptPath}`);
+  }
+  const memoryDir = path.join(cwd, '.ai');
+  fs.mkdirSync(memoryDir, { recursive: true });
+  const promptFile = path.join(memoryDir, 'AIOS_AGENT_PROMPT.md');
+  fs.copyFileSync(initPromptPath, promptFile);
+  return promptFile;
 }
 
 function getMissingFiles(memoryDir) {
