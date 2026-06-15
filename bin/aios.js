@@ -40,6 +40,9 @@ function main() {
     case 'handoff':
       handoff();
       break;
+    case 'close':
+      closeSession();
+      break;
     case 'help':
     case '--help':
     case '-h':
@@ -78,6 +81,7 @@ function audit() {
   const cwd = process.cwd();
   const memoryDir = path.join(cwd, '.ai');
   const missing = getMissingFiles(memoryDir);
+  const placeholders = fs.existsSync(memoryDir) ? findPlaceholders(memoryDir) : [];
   const git = getGitSnapshot();
 
   console.log('AIOS audit');
@@ -87,16 +91,23 @@ function audit() {
   console.log('');
 
   if (missing.length === 0) {
-    console.log('Estrutura: compatível com AIOS v1');
+    console.log('Estrutura: compativel com AIOS v1');
   } else {
     console.log('Estrutura: incompleta');
     for (const file of missing) console.log(`- ausente: .ai/${file}`);
   }
 
+  if (placeholders.length > 0) {
+    console.log('');
+    console.log('Marcadores que ainda exigem preenchimento:');
+    for (const item of placeholders.slice(0, 20)) console.log(`- ${item}`);
+    if (placeholders.length > 20) console.log(`- ... mais ${placeholders.length - 20}`);
+  }
+
   console.log('');
   printGitSnapshot(git);
   console.log('');
-  console.log('Observacao: esta auditoria inicial verifica estrutura e estado Git. A consistencia semantica da memoria ainda depende de revisao por agente/humano.');
+  console.log('Observacao: esta auditoria verifica estrutura, marcadores pendentes e estado Git. A consistencia semantica profunda ainda depende de revisao por agente/humano.');
 }
 
 function status() {
@@ -138,8 +149,46 @@ function handoff() {
   }
 }
 
+function closeSession() {
+  const cwd = process.cwd();
+  const memoryDir = path.join(cwd, '.ai');
+  const summary = getFlagValue('--summary') ?? 'Sessao encerrada via AIOS CLI.';
+  const next = getFlagValue('--next') ?? 'Revisar .ai/HANDOFF.md e comparar memoria com o estado real do repositorio.';
+
+  if (!fs.existsSync(memoryDir)) {
+    fail('Nao encontrei .ai/. Rode `aios init` primeiro.');
+  }
+
+  const git = getGitSnapshot();
+  const timestamp = new Date().toISOString();
+
+  const sessionPath = path.join(memoryDir, 'SESSION.md');
+  const handoffPath = path.join(memoryDir, 'HANDOFF.md');
+  const logPath = path.join(memoryDir, 'LOG.md');
+
+  ensureFile(sessionPath, '# SESSION — Estado Atual\n');
+  ensureFile(handoffPath, '# HANDOFF — Transferencia para o Proximo Agente\n');
+  ensureFile(logPath, '# LOG — Historico Cronologico\n');
+
+  const sessionContent = `# SESSION — Estado Atual\n\n## Data/hora da ultima atualizacao\n\n[observado] ${timestamp}\n\n## Branch atual\n\n[observado] ${git.branch || '[desconhecida]'}\n\n## Estado do Git\n\n\`\`\`txt\n${git.status || 'limpo'}\n\`\`\`\n\n## Ultima atividade observada\n\n[observado] ${summary}\n\n## Proximos passos recomendados\n\n1. [pendencia] ${next}\n\n## Ultimos commits\n\n\`\`\`txt\n${git.log || '[sem commits]'}\n\`\`\`\n`;
+
+  const handoffContent = `# HANDOFF — Transferencia para o Proximo Agente\n\n## Resumo executivo\n\n[observado] ${summary}\n\n## Estado atual\n\n[observado] Sessao encerrada em ${timestamp}.\n\n## Branch\n\n[observado] ${git.branch || '[desconhecida]'}\n\n## Estado do Git\n\n\`\`\`txt\n${git.status || 'limpo'}\n\`\`\`\n\n## Proximo passo recomendado\n\n1. [pendencia] ${next}\n\n## Primeiros minutos do proximo agente\n\n1. Ler este arquivo.\n2. Ler SESSION.md.\n3. Rodar git status.\n4. Rodar git log --oneline -10.\n5. Comparar memoria e repositorio antes de alterar codigo.\n`;
+
+  const logEntry = `\n## ${timestamp} — Sessao encerrada via AIOS CLI\n\n### Resumo\n\n[observado] ${summary}\n\n### Branch\n\n[observado] ${git.branch || '[desconhecida]'}\n\n### Estado do Git\n\n\`\`\`txt\n${git.status || 'limpo'}\n\`\`\`\n\n### Proximo passo\n\n[pendencia] ${next}\n`;
+
+  fs.writeFileSync(sessionPath, sessionContent, 'utf8');
+  fs.writeFileSync(handoffPath, handoffContent, 'utf8');
+  fs.appendFileSync(logPath, logEntry, 'utf8');
+
+  console.log('Sessao AIOS encerrada.');
+  console.log('Arquivos atualizados:');
+  console.log('- .ai/SESSION.md');
+  console.log('- .ai/HANDOFF.md');
+  console.log('- .ai/LOG.md');
+}
+
 function help() {
-  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force]     Cria a memoria .ai/ no projeto atual\n  aios audit              Verifica estrutura AIOS e estado Git\n  aios status             Mostra resumo operacional do projeto\n  aios handoff            Imprime o handoff atual\n  aios --version          Mostra versao\n  aios --help             Mostra ajuda\n\nFluxo recomendado:\n  1. Entre no repositorio do projeto\n  2. Rode: aios init\n  3. Peca a um agente para auditar e preencher a memoria\n  4. Antes de cada sessao, leia .ai/HANDOFF.md e .ai/SESSION.md`);
+  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force]                         Cria a memoria .ai/ no projeto atual\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessao e atualiza memoria\n  aios --version                              Mostra versao\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado:\n  1. Entre no repositorio do projeto\n  2. Rode: aios init\n  3. Peca a um agente para auditar e preencher a memoria\n  4. Antes de cada sessao, leia .ai/HANDOFF.md e .ai/SESSION.md\n  5. Ao encerrar, rode: aios close --summary \"o que foi feito\" --next \"proximo passo\"`);
 }
 
 function version() {
@@ -170,6 +219,22 @@ function copyDirectory(source, target, options = {}) {
 function getMissingFiles(memoryDir) {
   if (!fs.existsSync(memoryDir)) return REQUIRED_FILES;
   return REQUIRED_FILES.filter((file) => !fs.existsSync(path.join(memoryDir, file)));
+}
+
+function findPlaceholders(memoryDir) {
+  const results = [];
+  for (const file of REQUIRED_FILES) {
+    if (!file.endsWith('.md')) continue;
+    const filePath = path.join(memoryDir, file);
+    if (!fs.existsSync(filePath)) continue;
+    const lines = fs.readFileSync(filePath, 'utf8').split('\n');
+    lines.forEach((line, index) => {
+      if (line.includes('[exige confirmação]') || line.includes('[exige confirmacao]')) {
+        results.push(`.ai/${file}:${index + 1}`);
+      }
+    });
+  }
+  return results;
 }
 
 function getGitSnapshot() {
@@ -204,6 +269,21 @@ function runGit(command) {
     }).trim();
   } catch {
     return '';
+  }
+}
+
+function getFlagValue(name) {
+  const index = args.indexOf(name);
+  if (index === -1) return null;
+  const value = args[index + 1];
+  if (!value || value.startsWith('--')) return null;
+  return value;
+}
+
+function ensureFile(filePath, fallback) {
+  if (!fs.existsSync(filePath)) {
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, fallback, 'utf8');
   }
 }
 
