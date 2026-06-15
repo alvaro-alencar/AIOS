@@ -9,7 +9,8 @@
   "scripts": {
     "start": "node ./bin/aios.js",
     "check": "node --check ./bin/aios.js",
-    "smoke": "node ./bin/aios.js --help"
+    "smoke": "node ./bin/aios.js --help && node ./bin/aios.js --version",
+    "test": "node --test"
   },
   "keywords": [
     "ai",
