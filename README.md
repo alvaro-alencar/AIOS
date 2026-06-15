@@ -1,22 +1,35 @@
 # AIOS - Agent Intelligence Operating System
 
-AIOS e um protocolo agnostico de memoria operacional para projetos assistidos por agentes de IA.
+AIOS é um protocolo agnóstico de memória operacional para projetos assistidos por agentes de IA.
 
-A ideia central e simples: todo projeto deveria ter uma memoria versionada, legivel por humanos e agentes, capaz de preservar contexto, decisoes, pendencias, riscos, validacoes e handoffs entre sessoes.
+A ideia central é simples: todo projeto deveria ter uma memória versionada, legível por humanos e agentes, capaz de preservar contexto, decisões, pendências, riscos, validações e handoffs entre sessões.
 
-O AIOS nao e apenas uma pasta. A pasta `.ai/` e a implementacao padrao do protocolo.
+O AIOS não é apenas uma pasta. A pasta `.ai/` é a implementação padrão do protocolo.
 
 ## O problema
 
-Projetos modernos estao sendo trabalhados por humanos, assistentes de codigo, agentes de CLI, copilotos, modelos locais e ferramentas diferentes. Cada agente entra no projeto com pouco contexto e pode repetir analise, desfazer decisoes antigas, ignorar riscos ou quebrar fluxos criticos.
+Projetos modernos estão sendo trabalhados por humanos, assistentes de código, agentes de CLI, copilotos, modelos locais e ferramentas diferentes. Cada agente entra no projeto com pouco contexto e pode repetir análise, desfazer decisões antigas, ignorar riscos ou quebrar fluxos críticos.
 
-Codigo mostra o que existe. Commits mostram o que mudou. Issues mostram parte do plano. Mas falta uma camada persistente para responder o que o projeto e, como funciona, qual e o estado atual, quais decisoes importam e como validar mudancas com seguranca.
+Código mostra o que existe. Commits mostram o que mudou. Issues mostram parte do plano. Mas falta uma camada persistente para responder o que o projeto é, como funciona, qual é o estado atual, quais decisões importam e como validar mudanças com segurança.
 
-AIOS e essa camada.
+AIOS é essa camada.
 
-## Instalacao local
+## Instalação
 
-Clone o repositorio e exponha o comando globalmente:
+### Via npx (sem instalação)
+
+```bash
+npx @alvaro-alencar/aios init
+```
+
+### Instalação global
+
+```bash
+npm install -g @alvaro-alencar/aios
+aios init
+```
+
+### Instalação local (desenvolvimento)
 
 ```bash
 git clone https://github.com/alvaro-alencar/AIOS.git
@@ -24,35 +37,45 @@ cd AIOS
 npm link
 ```
 
-Depois, em qualquer projeto:
-
-```bash
-aios init
-```
-
-## Uso rapido
+## Uso rápido
 
 ```bash
 aios init       # cria .ai/ no projeto atual
 aios audit      # verifica estrutura AIOS, marcadores pendentes e estado Git
 aios status     # mostra resumo operacional
 aios handoff    # imprime .ai/HANDOFF.md
-aios close      # encerra sessao e atualiza SESSION, HANDOFF e LOG
+aios close      # encerra sessão e atualiza SESSION, HANDOFF e LOG
 ```
 
 Exemplo de encerramento:
 
 ```bash
-aios close --summary "Sessao concluida" --next "Rodar testes e abrir PR"
+aios close --summary "Sessão concluída" --next "Rodar testes e abrir PR"
 ```
 
-Depois de rodar `aios init`, peca ao agente de IA no CLI:
+Depois de rodar `aios init`, peça ao agente de IA no CLI:
 
 ```txt
-Leia todo o repositorio, audite a estrutura real do projeto e preencha a pasta `.ai/` seguindo o protocolo AIOS. Nao altere codigo de producao. Nao registre segredos. Separe fatos observados, inferencias e duvidas.
+Leia todo o repositório, audite a estrutura real do projeto e preencha a pasta `.ai/` seguindo o protocolo AIOS. Não altere código de produção. Não registre segredos. Separe fatos observados, inferências e dúvidas.
 ```
 
-O prompt completo esta em `prompts/init-project-memory.md`.
+O prompt completo está em `prompts/init-project-memory.md`.
+
+## Handshake universal
+
+Dentro de qualquer ferramenta com suporte a comandos (Claude Code, Cursor, Codex):
+
+```txt
+/aios
+```
+
+Se a ferramenta não tiver `/aios` nativo, use:
+
+```bash
+npx @alvaro-alencar/aios handshake
+```
+
+Cole a saída no agente. Ele saberá o que fazer.
 
 ## Desenvolvimento
 
@@ -62,7 +85,7 @@ npm run smoke
 npm test
 ```
 
-## A implementacao padrao
+## A implementação padrão
 
 ```txt
 .ai/
@@ -78,21 +101,21 @@ npm test
     .gitkeep
 ```
 
-## Principios
+## Princípios
 
-1. O repositorio e a fonte da verdade.
-2. A memoria deve refletir o estado real do projeto.
-3. Fatos, inferencias e duvidas devem ser separados.
-4. Segredos nunca devem ser copiados para a memoria.
-5. O proximo agente deve conseguir continuar o trabalho sem perguntar onde esta.
-6. A memoria deve ser util antes de ser bonita.
-7. O protocolo deve ser agnostico de stack, linguagem, framework e ferramenta de IA.
+1. O repositório é a fonte da verdade.
+2. A memória deve refletir o estado real do projeto.
+3. Fatos, inferências e dúvidas devem ser separados.
+4. Segredos nunca devem ser copiados para a memória.
+5. O próximo agente deve conseguir continuar o trabalho sem perguntar onde está.
+6. A memória deve ser útil antes de ser bonita.
+7. O protocolo deve ser agnóstico de stack, linguagem, framework e ferramenta de IA.
 
 ## Roadmap
 
-- [x] Especificacao inicial do protocolo
-- [x] Template padrao `.ai/`
-- [x] Prompt de inicializacao manual
+- [x] Especificação inicial do protocolo
+- [x] Template padrão `.ai/`
+- [x] Prompt de inicialização manual
 - [x] CLI `aios init`
 - [x] CLI `aios audit`
 - [x] CLI `aios status`
@@ -100,9 +123,9 @@ npm test
 - [x] CLI `aios close`
 - [x] Testes iniciais do CLI
 - [ ] Adaptadores para Claude, Cursor, Codex, Copilot e ChatGPT
-- [ ] Validador semantico de consistencia da memoria
+- [ ] Validador semântico de consistência da memória
 - [ ] Exemplos reais por tipo de projeto
 
 ## Status
 
-AIOS esta em versao inicial. A primeira versao funcional ja permite criar a memoria `.ai/`, auditar estrutura basica, consultar o handoff operacional e encerrar sessoes atualizando a memoria viva do projeto.
+AIOS está em versão inicial. A primeira versão funcional já permite criar a memória `.ai/`, auditar estrutura básica, consultar o handoff operacional e encerrar sessões atualizando a memória viva do projeto.
