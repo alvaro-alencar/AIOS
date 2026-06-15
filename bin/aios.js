@@ -50,6 +50,10 @@ function main() {
     case 'bootstrap':
       bootstrap();
       break;
+    case 'handshake':
+    case 'open':
+      handshake();
+      break;
     case 'help':
     case '--help':
     case '-h':
@@ -87,7 +91,7 @@ function init() {
   console.log('AIOS inicializado em .ai/');
   console.log('Isso criou a estrutura da memoria. Para preencher com inteligencia contextual, use uma IA no projeto.');
   console.log('Proximo passo recomendado dentro do Codex/Claude/Cursor:');
-  console.log('  aios prompt');
+  console.log('  /aios');
 }
 
 function bootstrap() {
@@ -105,7 +109,7 @@ function bootstrap() {
   console.log(`- Prompt para agente criado em: ${path.relative(cwd, promptFile)}`);
   console.log('');
   console.log('Agora peça ao agente de IA:');
-  console.log(`Leia ${path.relative(cwd, promptFile)} e execute as instrucoes.`);
+  console.log('/aios');
 }
 
 function prompt() {
@@ -115,6 +119,22 @@ function prompt() {
 
   const content = fs.readFileSync(initPromptPath, 'utf8');
   console.log(content);
+}
+
+function handshake() {
+  const cwd = process.cwd();
+  const memoryDir = path.join(cwd, '.ai');
+  const promptFile = path.join(memoryDir, 'AIOS_AGENT_PROMPT.md');
+
+  const instruction = `AIOS HANDSHAKE\n\nVoce recebeu o comando /aios. Execute o protocolo AIOS neste projeto.\n\n1. Verifique se existe a pasta .ai/.\n2. Se .ai/ nao existir, rode: npx @alvaro-alencar/aios bootstrap\n3. Se .ai/AIOS_AGENT_PROMPT.md existir, leia esse arquivo e execute integralmente as instrucoes.\n4. Leia, nesta ordem: .ai/HANDOFF.md, .ai/SESSION.md, .ai/CONTEXT.md, .ai/TODO.md, .ai/DECISIONS.md e .ai/VALIDATION_CHECKLIST.md.\n5. Rode: git status\n6. Rode: git log --oneline -10\n7. Compare a memoria AIOS com o estado real do repositorio.\n8. Se a memoria estiver generica, incompleta ou desatualizada, audite o repositorio e atualize a pasta .ai/.\n9. Nao registre segredos, tokens, senhas, chaves, certificados, conteudo de .env, credenciais ou dados pessoais sensiveis.\n10. Ao final, responda com um resumo operacional curto: estado da memoria, estado do Git, riscos imediatos e proximo passo recomendado.\n\nSe precisar encerrar a sessao depois, use: npx @alvaro-alencar/aios close --summary \"resumo\" --next \"proximo passo\"`;
+
+  console.log(instruction);
+
+  if (!fs.existsSync(memoryDir)) {
+    console.log('\nNota: .ai/ ainda nao existe neste diretorio. O agente deve rodar bootstrap.');
+  } else if (!fs.existsSync(promptFile)) {
+    console.log('\nNota: .ai/ existe, mas AIOS_AGENT_PROMPT.md nao existe. O agente pode rodar bootstrap ou usar a memoria existente.');
+  }
 }
 
 function audit() {
@@ -228,7 +248,7 @@ function closeSession() {
 }
 
 function help() {
-  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memoria .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios prompt                                 Imprime o prompt para preencher a memoria com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessao e atualiza memoria\n  aios --version                              Mostra versao\n  aios --help                                 Mostra ajuda\n\nFluxo sem IA:\n  1. Rode: aios init\n  2. Abra uma IA no projeto\n  3. Rode: aios prompt e cole/mande a saida para a IA\n\nFluxo dentro de uma IA de CLI:\n  1. Abra Codex/Claude/Cursor no projeto\n  2. Peça: rode npx @alvaro-alencar/aios bootstrap e depois siga o prompt gerado\n  3. Ao encerrar, rode: aios close --summary \"o que foi feito\" --next \"proximo passo\"`);
+  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memoria .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios handshake                              Imprime o handshake universal /aios\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memoria com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessao e atualiza memoria\n  aios --version                              Mostra versao\n  aios --help                                 Mostra ajuda\n\nFluxo ideal dentro de uma IA de CLI:\n  1. Abra Codex/Claude/Cursor no projeto\n  2. Digite apenas: /aios\n\nEnquanto a ferramenta nao tiver /aios nativo:\n  1. Rode: npx @alvaro-alencar/aios handshake\n  2. Cole a saida na IA\n\nAo encerrar:\n  aios close --summary \"o que foi feito\" --next \"proximo passo\"`);
 }
 
 function version() {
