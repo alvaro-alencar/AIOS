@@ -22,6 +22,39 @@ Código mostra o que existe. Commits mostram o que mudou. Issues mostram parte d
 
 AIOS é essa camada.
 
+## Instalação local
+
+Clone o repositório e exponha o comando globalmente:
+
+```bash
+git clone https://github.com/alvaro-alencar/AIOS.git
+cd AIOS
+npm link
+```
+
+Depois, em qualquer projeto:
+
+```bash
+aios init
+```
+
+## Uso rápido
+
+```bash
+aios init       # cria .ai/ no projeto atual
+aios audit      # verifica estrutura AIOS e estado Git
+aios status     # mostra resumo operacional
+aios handoff    # imprime .ai/HANDOFF.md
+```
+
+Depois de rodar `aios init`, peça ao agente de IA no CLI:
+
+```txt
+Leia todo o repositório, audite a estrutura real do projeto e preencha a pasta `.ai/` seguindo o protocolo AIOS. Não altere código de produção. Não registre segredos. Separe fatos observados, inferências e dúvidas.
+```
+
+O prompt completo está em `prompts/init-project-memory.md`.
+
 ## A implementação padrão
 
 ```txt
@@ -48,32 +81,20 @@ AIOS é essa camada.
 6. A memória deve ser útil antes de ser bonita.
 7. O protocolo deve ser agnóstico de stack, linguagem, framework e ferramenta de IA.
 
-## Quick start manual
-
-Copie o template base para qualquer projeto:
-
-```bash
-cp -R templates/default/.ai /caminho/do/projeto/.ai
-```
-
-Depois peça ao agente de IA no CLI:
-
-```txt
-Leia todo o repositório, audite a estrutura real do projeto e preencha a pasta `.ai/` seguindo o protocolo AIOS. Não altere código de produção. Não registre segredos. Separe fatos observados, inferências e dúvidas.
-```
-
 ## Roadmap
 
 - [x] Especificação inicial do protocolo
 - [x] Template padrão `.ai/`
 - [x] Prompt de inicialização manual
-- [ ] CLI `aios init`
-- [ ] CLI `aios audit`
-- [ ] CLI `aios handoff`
+- [x] CLI `aios init`
+- [x] CLI `aios audit`
+- [x] CLI `aios status`
+- [x] CLI `aios handoff`
+- [ ] CLI `aios close`
 - [ ] Adaptadores para Claude, Cursor, Codex, Copilot e ChatGPT
-- [ ] Validador de consistência da memória
+- [ ] Validador semântico de consistência da memória
 - [ ] Exemplos reais por tipo de projeto
 
 ## Status
 
-AIOS está em versão inicial. A primeira meta é estabilizar o protocolo e o template. Depois, o CLI pode automatizar a criação, auditoria e atualização da memória operacional.
+AIOS está em versão inicial. A primeira versão funcional já permite criar a memória `.ai/`, auditar estrutura básica e consultar o handoff operacional.
