@@ -1,0 +1,37 @@
+{
+  "name": "@alvaro-alencar/aios",
+  "version": "0.1.0",
+  "description": "AIOS - Agent Intelligence Operating System: operational memory protocol and CLI for AI-assisted projects.",
+  "type": "module",
+  "bin": {
+    "aios": "./bin/aios.js"
+  },
+  "scripts": {
+    "start": "node ./bin/aios.js",
+    "check": "node --check ./bin/aios.js",
+    "smoke": "node ./bin/aios.js --help"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "memory",
+    "cli",
+    "documentation",
+    "handoff",
+    "protocol"
+  ],
+  "author": "Alvaro Alencar",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin/",
+    "templates/",
+    "spec/",
+    "prompts/",
+    "docs/",
+    "README.md",
+    "LICENSE"
+  ]
+}
