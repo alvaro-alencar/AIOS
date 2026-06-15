@@ -25,6 +25,7 @@ test('help prints usage', () => {
   const output = run(['--help'], process.cwd());
   assert.match(output, /AIOS/);
   assert.match(output, /aios init/);
+  assert.match(output, /aios handshake/);
 });
 
 test('version prints package version', () => {
@@ -52,6 +53,19 @@ test('init creates required memory files', () => {
   for (const file of required) {
     assert.equal(fs.existsSync(path.join(dir, file)), true, `${file} should exist`);
   }
+});
+
+test('bootstrap creates agent prompt', () => {
+  const dir = tempProject();
+  run(['bootstrap'], dir);
+  assert.equal(fs.existsSync(path.join(dir, '.ai/AIOS_AGENT_PROMPT.md')), true);
+});
+
+test('handshake prints universal agent instruction', () => {
+  const output = run(['handshake'], process.cwd());
+  assert.match(output, /AIOS HANDSHAKE/);
+  assert.match(output, /\/aios/);
+  assert.match(output, /npx @alvaro-alencar\/aios bootstrap/);
 });
 
 test('audit recognizes initialized memory', () => {
