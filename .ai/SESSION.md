@@ -2,7 +2,7 @@
 
 ## Data/hora da última atualização
 
-[observado] 2026-06-15, sessão de implementação inicial.
+[observado] 2026-06-15, implementação inicial do CLI.
 
 ## Branch atual
 
@@ -10,31 +10,34 @@
 
 ## Estado do projeto
 
-[observado] O repositório AIOS agora contém protocolo, template padrão, prompt universal e CLI inicial em Node.js.
+[observado] O repositório AIOS contém protocolo, template padrão, prompt universal, memória própria e CLI inicial em Node.js.
 
 ## Tarefa em andamento
 
-[observado] Transformar AIOS de protocolo manual em ferramenta mínima usável.
+[observado] Primeira versão funcional do CLI AIOS.
 
 ## Mudanças recentes
 
 - [observado] Criado `package.json`.
 - [observado] Criado `bin/aios.js`.
+- [observado] Implementados comandos `init`, `audit`, `status`, `handoff` e `close`.
+- [observado] Criado `test/cli.test.js` com testes iniciais.
 - [observado] Atualizado `README.md` com uso do CLI.
 - [observado] Criada memória `.ai/` do próprio AIOS.
 
 ## Próximos passos recomendados
 
-1. [pendência] Testar localmente `npm run check` e `npm run smoke`.
+1. [pendência] Testar localmente `npm run check`, `npm run smoke` e `npm test`.
 2. [pendência] Clonar o repo localmente e rodar `npm link`.
 3. [pendência] Testar `aios init` em um projeto real.
-4. [pendência] Implementar `aios close`.
-5. [pendência] Criar testes automatizados.
+4. [pendência] Ajustar bugs encontrados após teste local.
+5. [pendência] Planejar publicação npm.
 
 ## Riscos imediatos
 
 - [risco] Os arquivos foram criados via GitHub connector, sem execução local dos comandos Node.
 - [risco] Pode ser necessário ajustar permissão executável do `bin/aios.js` em ambiente local.
+- [risco] Os testes foram escritos, mas ainda não executados nesta sessão.
 
 ## Dúvidas abertas
 
