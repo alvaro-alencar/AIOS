@@ -6,9 +6,8 @@
 
 ## Alta prioridade
 
-- [ ] [pendência] Implementar `aios close` para encerrar sessão e atualizar memória.
-- [ ] [pendência] Criar testes automatizados para `init`, `audit`, `status` e `handoff`.
 - [ ] [pendência] Melhorar `aios audit` para detectar placeholders `[exige confirmação]` e arquivos vazios.
+- [ ] [pendência] Planejar integração real com slash-command `/aios` em ferramentas que permitam comandos customizados.
 
 ## Média prioridade
 
@@ -31,12 +30,14 @@
 ## Riscos técnicos
 
 - [ ] [risco] `aios init --force` pode sobrescrever conteúdo relevante.
-- [ ] [risco] Sem testes, regressões no CLI podem passar despercebidas.
+- [ ] [risco] Sem execução local, testes podem precisar de ajuste fino.
 
 ## Concluídos
 
 - [x] [observado] Criada especificação AIOS v1.
+- [x] [observado] Criada especificação AIOS Handshake v1.
 - [x] [observado] Criado template padrão `.ai/`.
 - [x] [observado] Criado prompt universal de inicialização.
-- [x] [observado] Criado CLI inicial com `init`, `audit`, `status` e `handoff`.
+- [x] [observado] Criado CLI inicial com `init`, `audit`, `status`, `handoff`, `bootstrap`, `prompt`, `close`, `handshake` e `open`.
+- [x] [observado] Criados testes automatizados iniciais para CLI.
 - [x] [observado] Criada memória `.ai/` do próprio AIOS.
