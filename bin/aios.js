@@ -78,11 +78,11 @@ function init() {
   const withPrompt = flags.has('--with-prompt');
 
   if (!fs.existsSync(templateDir)) {
-    fail(`Template nao encontrado: ${templateDir}`);
+    fail(`Template não encontrado: ${templateDir}`);
   }
 
   if (fs.existsSync(targetDir) && !force) {
-    fail('A pasta .ai ja existe. Use `aios init --force` para sobrescrever arquivos ausentes/atualizar template com cuidado.');
+    fail('A pasta .ai já existe. Use `aios init --force` para sobrescrever arquivos ausentes/atualizar template com cuidado.');
   }
 
   copyDirectory(templateDir, targetDir, { overwrite: force });
@@ -92,8 +92,8 @@ function init() {
   }
 
   console.log('AIOS inicializado em .ai/');
-  console.log('Isso criou a estrutura da memoria. Para preencher com inteligencia contextual, use uma IA no projeto.');
-  console.log('Proximo passo recomendado dentro do Codex/Claude/Cursor:');
+  console.log('Isso criou a estrutura da memória. Para preencher com inteligência contextual, use uma IA no projeto.');
+  console.log('Próximo passo recomendado dentro do Codex/Claude/Cursor:');
   console.log('  /aios');
 }
 
@@ -107,7 +107,7 @@ function bootstrap() {
   }
 
   const promptFile = writeAgentPrompt(cwd);
-  console.log('AIOS bootstrap concluido.');
+  console.log('AIOS bootstrap concluído.');
   console.log('- Estrutura .ai/ pronta.');
   console.log(`- Prompt para agente criado em: ${path.relative(cwd, promptFile)}`);
   console.log('');
@@ -158,7 +158,7 @@ function installAdapters() {
     for (const file of written) console.log(`- ${file}`);
   }
   if (skipped.length > 0) {
-    console.log('Arquivos preservados porque ja existiam:');
+    console.log('Arquivos preservados porque já existiam:');
     for (const file of skipped) console.log(`- ${file}`);
     console.log('Use --force para sobrescrever.');
   }
@@ -166,7 +166,7 @@ function installAdapters() {
 
 function prompt() {
   if (!fs.existsSync(initPromptPath)) {
-    fail(`Prompt nao encontrado: ${initPromptPath}`);
+    fail(`Prompt não encontrado: ${initPromptPath}`);
   }
 
   const content = fs.readFileSync(initPromptPath, 'utf8');
@@ -178,14 +178,14 @@ function handshake() {
   const memoryDir = path.join(cwd, '.ai');
   const promptFile = path.join(memoryDir, 'AIOS_AGENT_PROMPT.md');
 
-  const instruction = `AIOS HANDSHAKE\n\nVoce recebeu o comando /aios. Execute o protocolo AIOS neste projeto.\n\n1. Verifique se existe a pasta .ai/.\n2. Se .ai/ nao existir, rode: npx @alvaro-alencar/aios bootstrap\n3. Se .ai/AIOS_AGENT_PROMPT.md existir, leia esse arquivo e execute integralmente as instrucoes.\n4. Leia, nesta ordem: .ai/HANDOFF.md, .ai/SESSION.md, .ai/CONTEXT.md, .ai/TODO.md, .ai/DECISIONS.md e .ai/VALIDATION_CHECKLIST.md.\n5. Rode: git status\n6. Rode: git log --oneline -10\n7. Compare a memoria AIOS com o estado real do repositorio.\n8. Se a memoria estiver generica, incompleta ou desatualizada, audite o repositorio e atualize a pasta .ai/.\n9. Nao registre segredos, tokens, senhas, chaves, certificados, conteudo de .env, credenciais ou dados pessoais sensiveis.\n10. Ao final, responda com um resumo operacional curto: estado da memoria, estado do Git, riscos imediatos e proximo passo recomendado.\n\nSe precisar encerrar a sessao depois, use: npx @alvaro-alencar/aios close --summary \"resumo\" --next \"proximo passo\"`;
+  const instruction = `AIOS HANDSHAKE\n\nVocê recebeu o comando /aios. Execute o protocolo AIOS neste projeto.\n\n1. Verifique se existe a pasta .ai/.\n2. Se .ai/ não existir, rode: npx @alvaro-alencar/aios bootstrap\n3. Se .ai/AIOS_AGENT_PROMPT.md existir, leia esse arquivo e execute integralmente as instruções.\n4. Leia, nesta ordem: .ai/HANDOFF.md, .ai/SESSION.md, .ai/CONTEXT.md, .ai/TODO.md, .ai/DECISIONS.md e .ai/VALIDATION_CHECKLIST.md.\n5. Rode: git status\n6. Rode: git log --oneline -10\n7. Compare a memória AIOS com o estado real do repositório.\n8. Se a memória estiver genérica, incompleta ou desatualizada, audite o repositório e atualize a pasta .ai/.\n9. Não registre segredos, tokens, senhas, chaves, certificados, conteúdo de .env, credenciais ou dados pessoais sensíveis.\n10. Ao final, responda com um resumo operacional curto: estado da memória, estado do Git, riscos imediatos e próximo passo recomendado.\n\nSe precisar encerrar a sessão depois, use: npx @alvaro-alencar/aios close --summary "resumo" --next "próximo passo"`;
 
   console.log(instruction);
 
   if (!fs.existsSync(memoryDir)) {
-    console.log('\nNota: .ai/ ainda nao existe neste diretorio. O agente deve rodar bootstrap.');
+    console.log('\nNota: .ai/ ainda não existe neste diretório. O agente deve rodar bootstrap.');
   } else if (!fs.existsSync(promptFile)) {
-    console.log('\nNota: .ai/ existe, mas AIOS_AGENT_PROMPT.md nao existe. O agente pode rodar bootstrap ou usar a memoria existente.');
+    console.log('\nNota: .ai/ existe, mas AIOS_AGENT_PROMPT.md não existe. O agente pode rodar bootstrap ou usar a memória existente.');
   }
 }
 
@@ -198,12 +198,12 @@ function audit() {
 
   console.log('AIOS audit');
   console.log('');
-  console.log(`Diretorio: ${cwd}`);
-  console.log(`Memoria .ai: ${fs.existsSync(memoryDir) ? 'encontrada' : 'nao encontrada'}`);
+  console.log(`Diretório: ${cwd}`);
+  console.log(`Memória .ai: ${fs.existsSync(memoryDir) ? 'encontrada' : 'não encontrada'}`);
   console.log('');
 
   if (missing.length === 0) {
-    console.log('Estrutura: compativel com AIOS v1');
+    console.log('Estrutura: compatível com AIOS v1');
   } else {
     console.log('Estrutura: incompleta');
     for (const file of missing) console.log(`- ausente: .ai/${file}`);
@@ -219,7 +219,7 @@ function audit() {
   console.log('');
   printGitSnapshot(git);
   console.log('');
-  console.log('Observacao: esta auditoria verifica estrutura, marcadores pendentes e estado Git. A consistencia semantica profunda ainda depende de revisao por agente/humano.');
+  console.log('Observação: esta auditoria verifica estrutura, marcadores pendentes e estado Git. A consistência semântica profunda ainda depende de revisão por agente/humano.');
 }
 
 function status() {
@@ -230,7 +230,7 @@ function status() {
   console.log('AIOS status');
   console.log('');
   console.log(`Projeto: ${path.basename(cwd)}`);
-  console.log(`Memoria: ${fs.existsSync(memoryDir) ? '.ai/ encontrada' : '.ai/ nao encontrada'}`);
+  console.log(`Memória: ${fs.existsSync(memoryDir) ? '.ai/ encontrada' : '.ai/ não encontrada'}`);
 
   if (fs.existsSync(memoryDir)) {
     const handoffPath = path.join(memoryDir, 'HANDOFF.md');
@@ -248,7 +248,7 @@ function handoff() {
   const handoffPath = path.join(memoryDir, 'HANDOFF.md');
 
   if (!fs.existsSync(handoffPath)) {
-    fail('Nao encontrei .ai/HANDOFF.md. Rode `aios init` primeiro.');
+    fail('Não encontrei .ai/HANDOFF.md. Rode `aios init` primeiro.');
   }
 
   const content = fs.readFileSync(handoffPath, 'utf8');
@@ -264,11 +264,11 @@ function handoff() {
 function closeSession() {
   const cwd = process.cwd();
   const memoryDir = path.join(cwd, '.ai');
-  const summary = getFlagValue('--summary') ?? 'Sessao encerrada via AIOS CLI.';
-  const next = getFlagValue('--next') ?? 'Revisar .ai/HANDOFF.md e comparar memoria com o estado real do repositorio.';
+  const summary = getFlagValue('--summary') ?? 'Sessão encerrada via AIOS CLI.';
+  const next = getFlagValue('--next') ?? 'Revisar .ai/HANDOFF.md e comparar memória com o estado real do repositório.';
 
   if (!fs.existsSync(memoryDir)) {
-    fail('Nao encontrei .ai/. Rode `aios init` primeiro.');
+    fail('Não encontrei .ai/. Rode `aios init` primeiro.');
   }
 
   const git = getGitSnapshot();
@@ -279,20 +279,20 @@ function closeSession() {
   const logPath = path.join(memoryDir, 'LOG.md');
 
   ensureFile(sessionPath, '# SESSION — Estado Atual\n');
-  ensureFile(handoffPath, '# HANDOFF — Transferencia para o Proximo Agente\n');
-  ensureFile(logPath, '# LOG — Historico Cronologico\n');
+  ensureFile(handoffPath, '# HANDOFF — Transferência para o Próximo Agente\n');
+  ensureFile(logPath, '# LOG — Histórico Cronológico\n');
 
-  const sessionContent = `# SESSION — Estado Atual\n\n## Data/hora da ultima atualizacao\n\n[observado] ${timestamp}\n\n## Branch atual\n\n[observado] ${git.branch || '[desconhecida]'}\n\n## Estado do Git\n\n\`\`\`txt\n${git.status || 'limpo'}\n\`\`\`\n\n## Ultima atividade observada\n\n[observado] ${summary}\n\n## Proximos passos recomendados\n\n1. [pendencia] ${next}\n\n## Ultimos commits\n\n\`\`\`txt\n${git.log || '[sem commits]'}\n\`\`\`\n`;
+  const sessionContent = `# SESSION — Estado Atual\n\n## Data/hora da última atualização\n\n[observado] ${timestamp}\n\n## Branch atual\n\n[observado] ${git.branch || '[desconhecida]'}\n\n## Estado do Git\n\n\`\`\`txt\n${git.status || 'limpo'}\n\`\`\`\n\n## Última atividade observada\n\n[observado] ${summary}\n\n## Próximos passos recomendados\n\n1. [pendência] ${next}\n\n## Últimos commits\n\n\`\`\`txt\n${git.log || '[sem commits]'}\n\`\`\`\n`;
 
-  const handoffContent = `# HANDOFF — Transferencia para o Proximo Agente\n\n## Resumo executivo\n\n[observado] ${summary}\n\n## Estado atual\n\n[observado] Sessao encerrada em ${timestamp}.\n\n## Branch\n\n[observado] ${git.branch || '[desconhecida]'}\n\n## Estado do Git\n\n\`\`\`txt\n${git.status || 'limpo'}\n\`\`\`\n\n## Proximo passo recomendado\n\n1. [pendencia] ${next}\n\n## Primeiros minutos do proximo agente\n\n1. Ler este arquivo.\n2. Ler SESSION.md.\n3. Rodar git status.\n4. Rodar git log --oneline -10.\n5. Comparar memoria e repositorio antes de alterar codigo.\n`;
+  const handoffContent = `# HANDOFF — Transferência para o Próximo Agente\n\n## Resumo executivo\n\n[observado] ${summary}\n\n## Estado atual\n\n[observado] Sessão encerrada em ${timestamp}.\n\n## Branch\n\n[observado] ${git.branch || '[desconhecida]'}\n\n## Estado do Git\n\n\`\`\`txt\n${git.status || 'limpo'}\n\`\`\`\n\n## Próximo passo recomendado\n\n1. [pendência] ${next}\n\n## Primeiros minutos do próximo agente\n\n1. Ler este arquivo.\n2. Ler SESSION.md.\n3. Rodar git status.\n4. Rodar git log --oneline -10.\n5. Comparar memória e repositório antes de alterar código.\n`;
 
-  const logEntry = `\n## ${timestamp} — Sessao encerrada via AIOS CLI\n\n### Resumo\n\n[observado] ${summary}\n\n### Branch\n\n[observado] ${git.branch || '[desconhecida]'}\n\n### Estado do Git\n\n\`\`\`txt\n${git.status || 'limpo'}\n\`\`\`\n\n### Proximo passo\n\n[pendencia] ${next}\n`;
+  const logEntry = `\n## ${timestamp} — Sessão encerrada via AIOS CLI\n\n### Resumo\n\n[observado] ${summary}\n\n### Branch\n\n[observado] ${git.branch || '[desconhecida]'}\n\n### Estado do Git\n\n\`\`\`txt\n${git.status || 'limpo'}\n\`\`\`\n\n### Próximo passo\n\n[pendência] ${next}\n`;
 
   fs.writeFileSync(sessionPath, sessionContent, 'utf8');
   fs.writeFileSync(handoffPath, handoffContent, 'utf8');
   fs.appendFileSync(logPath, logEntry, 'utf8');
 
-  console.log('Sessao AIOS encerrada.');
+  console.log('Sessão AIOS encerrada.');
   console.log('Arquivos atualizados:');
   console.log('- .ai/SESSION.md');
   console.log('- .ai/HANDOFF.md');
@@ -300,7 +300,7 @@ function closeSession() {
 }
 
 function help() {
-  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memoria .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios install [all|codex|claude|cursor|copilot] [--force]\n                                                Instala arquivos de instrucao para ferramentas de IA\n  aios handshake                              Imprime o handshake universal /aios\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memoria com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessao e atualiza memoria\n  aios --version                              Mostra versao\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado para deixar um projeto pronto para agentes:\n  npx @alvaro-alencar/aios install all\n\nDepois abra Codex, Claude Code, Cursor ou Copilot no projeto.\n\nAo encerrar:\n  aios close --summary \"o que foi feito\" --next \"proximo passo\"`);
+  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memória .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios install [all|codex|claude|cursor|copilot] [--force]\n                                              Instala arquivos de instrução para ferramentas de IA\n  aios handshake                              Imprime o handshake universal /aios\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memória com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary "..." --next "..."   Encerra sessão e atualiza memória\n  aios --version                              Mostra versão\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado para deixar um projeto pronto para agentes:\n  npx @alvaro-alencar/aios install all\n\nDepois abra Codex, Claude Code, Cursor ou Copilot no projeto.\n\nAo encerrar:\n  aios close --summary "o que foi feito" --next "próximo passo"`);
 }
 
 function version() {
@@ -310,7 +310,7 @@ function version() {
 }
 
 function getAdapterFiles() {
-  const shared = `# AIOS Agent Instructions\n\nThis project uses AIOS, an operational memory protocol for AI-assisted projects.\n\nWhen starting work in this repository:\n\n1. Check whether .ai/ exists.\n2. If .ai/ does not exist, run: npx @alvaro-alencar/aios bootstrap\n3. If .ai/AIOS_AGENT_PROMPT.md exists, read it and execute its instructions.\n4. Read .ai/HANDOFF.md, .ai/SESSION.md, .ai/CONTEXT.md, .ai/TODO.md, .ai/DECISIONS.md and .ai/VALIDATION_CHECKLIST.md.\n5. Run git status and git log --oneline -10.\n6. Compare the AIOS memory with the real repository state.\n7. Keep facts, inferences, risks, decisions and pending tasks clearly separated.\n8. Never write secrets, tokens, passwords, API keys, certificates, .env contents, credentials or sensitive personal data into AIOS memory.\n9. Before ending a meaningful session, update the AIOS memory or run: npx @alvaro-alencar/aios close --summary \"summary\" --next \"next step\"\n\nIf the user types /aios, execute the AIOS handshake for this project.\n`;
+  const shared = `# AIOS Agent Instructions\n\nThis project uses AIOS, an operational memory protocol for AI-assisted projects.\n\nWhen starting work in this repository:\n\n1. Check whether .ai/ exists.\n2. If .ai/ does not exist, run: npx @alvaro-alencar/aios bootstrap\n3. If .ai/AIOS_AGENT_PROMPT.md exists, read it and execute its instructions.\n4. Read .ai/HANDOFF.md, .ai/SESSION.md, .ai/CONTEXT.md, .ai/TODO.md, .ai/DECISIONS.md and .ai/VALIDATION_CHECKLIST.md.\n5. Run git status and git log --oneline -10.\n6. Compare the AIOS memory with the real repository state.\n7. Keep facts, inferences, risks, decisions and pending tasks clearly separated.\n8. Never write secrets, tokens, passwords, API keys, certificates, .env contents, credentials or sensitive personal data into AIOS memory.\n9. Before ending a meaningful session, update the AIOS memory or run: npx @alvaro-alencar/aios close --summary "summary" --next "next step"\n\nIf the user types /aios, execute the AIOS handshake for this project.\n`;
 
   return {
     codex: [
@@ -349,7 +349,7 @@ function copyDirectory(source, target, options = {}) {
 
 function writeAgentPrompt(cwd) {
   if (!fs.existsSync(initPromptPath)) {
-    fail(`Prompt nao encontrado: ${initPromptPath}`);
+    fail(`Prompt não encontrado: ${initPromptPath}`);
   }
   const memoryDir = path.join(cwd, '.ai');
   fs.mkdirSync(memoryDir, { recursive: true });
@@ -390,7 +390,7 @@ function getGitSnapshot() {
 
 function printGitSnapshot(git) {
   if (!git.isRepo) {
-    console.log('Git: nao parece ser um repositorio Git');
+    console.log('Git: não parece ser um repositório Git');
     return;
   }
 
@@ -398,7 +398,7 @@ function printGitSnapshot(git) {
   console.log('Status:');
   console.log(git.status || 'limpo');
   console.log('');
-  console.log('Ultimos commits:');
+  console.log('Últimos commits:');
   console.log(git.log || '[sem commits]');
 }
 

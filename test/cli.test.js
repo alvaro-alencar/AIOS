@@ -100,7 +100,7 @@ test('audit recognizes initialized memory', () => {
   run(['init'], dir);
   const output = run(['audit'], dir);
   assert.match(output, /AIOS audit/);
-  assert.match(output, /Memoria .ai: encontrada/);
+  assert.match(output, /Mem.ria .ai: encontrada/);
 });
 
 test('close updates session, handoff and log', () => {
@@ -114,5 +114,5 @@ test('close updates session, handoff and log', () => {
 
   assert.match(session, /Teste encerrado/);
   assert.match(handoff, /Continuar validacao/);
-  assert.match(log, /Sessao encerrada via AIOS CLI/);
+  assert.match(log, /Sess.o encerrada via AIOS CLI/);
 });
