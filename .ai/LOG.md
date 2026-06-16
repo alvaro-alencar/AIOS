@@ -126,3 +126,35 @@ Auditar o próprio repositório AIOS, comparar memória com estado real, atualiz
 ### Código de produção alterado
 
 Nenhum.
+
+---
+
+## 2026-06-16 — Primeiro caso real validado: ga-core
+
+### Agente
+
+GPT-5.5 medium via Cursor/Claude Code no projeto ga-core
+
+### Objetivo
+
+Validar o fluxo AIOS em projeto real de terceiros (não o próprio repo AIOS).
+
+### Resultado
+
+[observado] AIOS instalado com sucesso no projeto ga-core via `aios install`.
+
+[observado] Criada estrutura `.ai/` completa com memória real: stack, módulos, rotas, migrations, scripts, CI, riscos, decisões (ex: GA Core vs ArkNexus, MVP manual, Alseth v2).
+
+[observado] Adaptadores instalados: `CLAUDE.md`, `.cursor/rules/aios.mdc`, `.github/copilot-instructions.md`.
+
+[observado] Memória preenchida com fatos reais do repositório, não placeholders genéricos.
+
+[observado] Marcadores `[observado]`, `[inferencia]`, `[risco]`, `[pendencia]`, `[decisao]`, `[exige confirmacao]` usados corretamente.
+
+### Conclusão
+
+[observado] Protocolo AIOS validado em caso real. O fluxo install → handshake → auditoria → memória funcionou sem fricção reportada.
+
+### Próximo teste a fazer
+
+[pendência] Abrir ga-core numa sessão nova (sem contexto da conversa anterior), rodar `/aios`, e verificar se o agente consegue assumir o trabalho apenas com os arquivos `.ai/`. Esse é o teste central da promessa de continuidade.
