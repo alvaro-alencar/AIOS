@@ -22,7 +22,13 @@ aios --help
 aios --version
 ```
 
-## Teste de inicialização
+## Testes automatizados
+
+```bash
+npm test
+```
+
+## Teste de inicialização (Linux/macOS)
 
 ```bash
 mkdir /tmp/aios-test
@@ -34,20 +40,47 @@ aios status
 aios handoff
 ```
 
+## Teste de inicialização (Windows)
+
+```powershell
+$dir = "$env:TEMP\aios-test-$(Get-Random)"
+New-Item -ItemType Directory -Path $dir | Out-Null
+Set-Location $dir
+git init
+aios init
+aios audit
+aios status
+aios handoff
+```
+
+> [risco] Usar `/tmp/` em scripts de validação é Unix-only. No Windows use `$env:TEMP`.
+> [pendência] Bug registrado: npx dentro do próprio repo AIOS no Windows pode usar pacote local. Não rodar `npx @alvaro-alencar/aios bootstrap` de dentro do diretório do repo AIOS no Windows até o bug ser corrigido.
+
+## Teste de adaptadores
+
+```bash
+# Em projeto externo (fora do repo AIOS):
+npx @alvaro-alencar/aios install all
+# Verificar criação de: CLAUDE.md, AGENTS.md, .cursor/rules/aios.mdc, .github/copilot-instructions.md, .ai/AIOS_AGENT_PROMPT.md
+```
+
 ## Checklist antes de PR/release
 
-- [ ] `npm run check` executado.
+- [ ] `npm run check` executado sem erros.
+- [ ] `npm test` executado sem falhas.
 - [ ] `npm run smoke` executado.
 - [ ] `aios init` testado em projeto temporário.
 - [ ] `aios audit` testado em projeto com `.ai/`.
 - [ ] `aios audit` testado em projeto sem `.ai/`.
+- [ ] `aios install all` testado em projeto externo.
 - [ ] README atualizado.
 - [ ] `.ai/SESSION.md` atualizado.
 - [ ] `.ai/HANDOFF.md` atualizado.
-- [ ] Nenhum segredo registrado.
+- [ ] Nenhum segredo registrado na memória.
 
 ## Riscos de regressão
 
 - [risco] Quebrar cópia recursiva do template.
 - [risco] `aios init --force` sobrescrever memória customizada.
 - [risco] `aios audit` dar falsa sensação de validação completa.
+- [risco] `npx` dentro do próprio repo AIOS no Windows resolver para pacote local.

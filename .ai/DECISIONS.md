@@ -2,7 +2,7 @@
 
 ## 2026-06-15 — AIOS como protocolo e CLI agnóstico
 
-**Status:** aceita  
+**Status:** aceita
 **Tipo:** produto | arquitetura | processo
 
 ### Decisão
@@ -29,13 +29,13 @@ O repo AIOS passa a conter especificação, templates, prompts e automação CLI
 
 ### Revisar quando
 
-Após uso em pelo menos três projetos reais.
+Após uso em pelo menos três projetos reais de terceiros.
 
 ---
 
 ## 2026-06-15 — CLI sem dependências externas na primeira versão
 
-**Status:** aceita  
+**Status:** aceita
 **Tipo:** arquitetura
 
 ### Decisão
@@ -54,7 +54,7 @@ Reduz fricção, riscos de instalação e complexidade inicial.
 
 ### Impacto
 
-O CLI é simples e portátil, mas menos sofisticado.
+O CLI é simples e portátil, mas menos sofisticado. `bin/aios.js` concentra todos os comandos (~438 linhas).
 
 ### Riscos
 
@@ -63,3 +63,36 @@ O CLI é simples e portátil, mas menos sofisticado.
 ### Revisar quando
 
 Quando surgirem mais comandos ou necessidade de parsing avançado.
+
+---
+
+## 2026-06-15 — Instalador de adaptadores (`aios install`)
+
+**Status:** aceita
+**Tipo:** produto | experiência do usuário
+
+### Decisão
+
+[decisão] O comando `aios install [all|codex|claude|cursor|copilot]` gera os arquivos de instrução de cada ferramenta de IA a partir de um conteúdo padronizado interno ao CLI.
+
+### Justificativa
+
+Elimina a necessidade de o usuário copiar manualmente os arquivos de instrução para cada ferramenta. Um único comando prepara o projeto para todas as ferramentas suportadas.
+
+### Alternativas consideradas
+
+- Disponibilizar arquivos template para download manual.
+- Documentar o conteúdo e pedir ao usuário para criar.
+
+### Impacto
+
+A experiência do usuário melhora drasticamente. O conteúdo dos adaptadores fica codificado em `getAdapterFiles()` dentro do CLI.
+
+### Riscos
+
+[risco] Atualizar o conteúdo dos adaptadores exige nova versão do pacote npm.
+[risco] Rodar `aios install` dentro do próprio repo AIOS gera arquivos não rastreados que podem confundir agentes.
+
+### Revisar quando
+
+Se o conteúdo dos adaptadores precisar de customização por projeto.
