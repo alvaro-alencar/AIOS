@@ -27,6 +27,9 @@ test('help prints usage', () => {
   assert.match(output, /aios init/);
   assert.match(output, /aios handshake/);
   assert.match(output, /aios install/);
+  assert.match(output, /aios observe/);
+  assert.match(output, /aios plan/);
+  assert.match(output, /aios act/);
 });
 
 test('version prints package version', () => {
@@ -88,11 +91,49 @@ test('install claude creates only claude adapter plus AIOS memory', () => {
   assert.equal(fs.existsSync(path.join(dir, '.ai/AIOS_AGENT_PROMPT.md')), true);
 });
 
-test('handshake prints universal agent instruction', () => {
+test('default command installs all adapters', () => {
+  const dir = tempProject();
+  run([], dir);
+  assert.equal(fs.existsSync(path.join(dir, 'AGENTS.md')), true);
+  assert.equal(fs.existsSync(path.join(dir, 'CLAUDE.md')), true);
+});
+
+test('observe prints safe default mode', () => {
+  const output = run(['observe'], process.cwd());
+  assert.match(output, /AIOS OBSERVE MODE/);
+  assert.match(output, /Não altere código de produção/);
+  assert.match(output, /Próximos comandos AIOS sugeridos/);
+});
+
+test('plan prints planning mode without execution', () => {
+  const output = run(['plan'], process.cwd());
+  assert.match(output, /AIOS PLAN MODE/);
+  assert.match(output, /Não altere código de produção/);
+  assert.match(output, /plano de ação priorizado/);
+});
+
+test('act prints authorized task mode', () => {
+  const output = run(['act', 'corrigir bug de teste'], process.cwd());
+  assert.match(output, /AIOS ACT MODE/);
+  assert.match(output, /corrigir bug de teste/);
+  assert.match(output, /Não faça commit nem push/);
+});
+
+test('handshake prints observe mode by default', () => {
   const output = run(['handshake'], process.cwd());
-  assert.match(output, /AIOS HANDSHAKE/);
-  assert.match(output, /\/aios/);
-  assert.match(output, /npx @alvaro-alencar\/aios bootstrap/);
+  assert.match(output, /AIOS OBSERVE MODE/);
+  assert.match(output, /\/aios entra em OBSERVE por padrão/);
+});
+
+test('adapter instructions enforce observe mode and command suggestions', () => {
+  const dir = tempProject();
+  run(['install', 'all'], dir);
+  const agents = fs.readFileSync(path.join(dir, 'AGENTS.md'), 'utf8');
+  assert.match(agents, /OBSERVE mode by default/);
+  assert.match(agents, /Do not alter production code/);
+  assert.match(agents, /At the end of every operational response/);
+  assert.match(agents, /aios plan/);
+  assert.match(agents, /aios act/);
 });
 
 test('audit recognizes initialized memory', () => {
