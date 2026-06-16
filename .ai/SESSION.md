@@ -2,7 +2,7 @@
 
 ## Data/hora da última atualização
 
-[observado] 2026-06-15, implementação inicial do CLI.
+[observado] 2026-06-15, após publicação npm 0.1.0.
 
 ## Branch atual
 
@@ -10,36 +10,31 @@
 
 ## Estado do projeto
 
-[observado] O repositório AIOS contém protocolo, template padrão, prompt universal, memória própria e CLI inicial em Node.js.
+[observado] AIOS está publicado no npm como `@alvaro-alencar/aios@0.1.0`.
 
-## Tarefa em andamento
-
-[observado] Primeira versão funcional do CLI AIOS.
+[observado] O repositório contém protocolo, handshake, template padrão, prompt universal, memória própria, CLI Node.js e testes iniciais.
 
 ## Mudanças recentes
 
-- [observado] Criado `package.json`.
-- [observado] Criado `bin/aios.js`.
-- [observado] Implementados comandos `init`, `audit`, `status`, `handoff` e `close`.
-- [observado] Criado `test/cli.test.js` com testes iniciais.
-- [observado] Atualizado `README.md` com uso do CLI.
-- [observado] Criada memória `.ai/` do próprio AIOS.
+- [observado] Publicação npm 0.1.0 concluída por Claude Code.
+- [observado] Token temporário de publicação npm foi revogado pelo usuário.
+- [observado] README atualizado para priorizar instalação global e `npx @alvaro-alencar/aios handshake`.
+- [observado] `package.json` recebeu metadados npm: homepage, bugs e keywords adicionais.
 
 ## Próximos passos recomendados
 
-1. [pendência] Testar localmente `npm run check`, `npm run smoke` e `npm test`.
-2. [pendência] Clonar o repo localmente e rodar `npm link`.
-3. [pendência] Testar `aios init` em um projeto real.
-4. [pendência] Ajustar bugs encontrados após teste local.
-5. [pendência] Planejar publicação npm.
+1. [pendência] Testar em ambiente limpo: `npx @alvaro-alencar/aios --version`.
+2. [pendência] Testar em projeto temporário: `npx @alvaro-alencar/aios handshake`.
+3. [pendência] Criar GitHub Release `v0.1.0`.
+4. [pendência] Criar issues de roadmap para adaptadores, validador semântico e exemplos reais.
+5. [pendência] Publicar versão 0.1.1 com metadados atualizados, se necessário.
 
 ## Riscos imediatos
 
-- [risco] Os arquivos foram criados via GitHub connector, sem execução local dos comandos Node.
-- [risco] Pode ser necessário ajustar permissão executável do `bin/aios.js` em ambiente local.
-- [risco] Os testes foram escritos, mas ainda não executados nesta sessão.
+- [risco] Mudanças pós-publicação no README/package ainda não estão na versão npm 0.1.0 publicada.
+- [risco] Release notes ainda precisam ser criadas no GitHub.
 
 ## Dúvidas abertas
 
-- [exige confirmação] O pacote será publicado no npm ou usado inicialmente via clone + npm link?
-- [exige confirmação] O nome npm desejado será `@alvaro-alencar/aios` ou outro escopo?
+- [exige confirmação] Quando publicar 0.1.1 com melhorias de metadata/documentação?
+- [exige confirmação] Qual será o primeiro projeto real usado como teste público do AIOS?
