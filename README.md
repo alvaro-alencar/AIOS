@@ -23,14 +23,20 @@ aios handshake
 
 ## Fluxo recomendado
 
-Dentro de um projeto:
+Para deixar um projeto pronto para agentes de IA:
 
 ```bash
 cd meu-projeto
-npx @alvaro-alencar/aios handshake
+npx @alvaro-alencar/aios install all
 ```
 
-O handshake imprime a instrucao universal para ativar um agente de IA no projeto.
+Isso cria a memoria `.ai/` e arquivos de instrucao para ferramentas de IA.
+
+Enquanto a ferramenta nao tiver suporte nativo, use:
+
+```bash
+npx @alvaro-alencar/aios handshake
+```
 
 Em uma ferramenta de IA que entenda o protocolo AIOS, o ideal e digitar apenas:
 
@@ -43,6 +49,7 @@ Em uma ferramenta de IA que entenda o protocolo AIOS, o ideal e digitar apenas:
 ```bash
 aios init        # cria .ai/ no projeto atual
 aios bootstrap   # cria .ai/ e .ai/AIOS_AGENT_PROMPT.md
+aios install all # cria .ai/ e instrucoes para agentes
 aios handshake   # imprime o handshake universal /aios
 aios open        # alias de handshake
 aios prompt      # imprime o prompt completo para preencher a memoria
@@ -50,6 +57,17 @@ aios audit       # verifica estrutura AIOS, marcadores pendentes e estado Git
 aios status      # mostra resumo operacional
 aios handoff     # imprime .ai/HANDOFF.md
 aios close       # encerra sessao e atualiza SESSION, HANDOFF e LOG
+```
+
+## Arquivos gerados por install all
+
+```txt
+.ai/
+.ai/AIOS_AGENT_PROMPT.md
+AGENTS.md
+CLAUDE.md
+.cursor/rules/aios.mdc
+.github/copilot-instructions.md
 ```
 
 ## Principios
@@ -71,13 +89,13 @@ aios close       # encerra sessao e atualiza SESSION, HANDOFF e LOG
 - [x] Prompt de inicializacao manual
 - [x] CLI `aios init`
 - [x] CLI `aios bootstrap`
+- [x] CLI `aios install all`
 - [x] CLI `aios handshake` / `aios open`
 - [x] CLI `aios audit`
 - [x] CLI `aios status`
 - [x] CLI `aios handoff`
 - [x] CLI `aios close`
 - [x] Testes iniciais do CLI
-- [ ] Adaptadores para Claude, Cursor, Codex, Copilot e ChatGPT
 - [ ] Validador semantico de consistencia da memoria
 - [ ] Exemplos reais por tipo de projeto
 
@@ -85,4 +103,4 @@ aios close       # encerra sessao e atualiza SESSION, HANDOFF e LOG
 
 AIOS esta publicado no npm como `@alvaro-alencar/aios@0.1.0`.
 
-A primeira versao funcional permite criar memoria `.ai/`, executar handshake, auditar estrutura basica, consultar handoff operacional e encerrar sessoes atualizando a memoria viva do projeto.
+A versao atual no repositorio adiciona instaladores de adaptadores para ferramentas de IA. Publique uma nova versao npm para distribuir esse recurso globalmente.
