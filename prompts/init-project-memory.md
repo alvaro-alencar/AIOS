@@ -5,9 +5,37 @@ Use este prompt em uma IA de CLI dentro do repositório onde deseja criar a mem�
 ```txt
 Você está trabalhando neste repositório local.
 
-Sua missão é criar uma pasta `.ai/` seguindo o protocolo AIOS — Agent Intelligence Operating System.
+Sua missão é criar ou atualizar a pasta `.ai/` seguindo o protocolo AIOS — Agent Intelligence Operating System.
 
 A função dessa pasta é servir como memória operacional versionada do projeto, permitindo que qualquer agente de IA ou desenvolvedor humano consiga assumir o trabalho no futuro lendo apenas os arquivos da `.ai/`.
+
+## Modo operacional obrigatório
+
+Entre em **AIOS OBSERVE mode** por padrão.
+
+OBSERVE significa: leia, audite, compare e resuma.
+
+Você NÃO deve:
+
+- alterar código de produção;
+- implementar features;
+- refatorar;
+- criar commits;
+- fazer push;
+- alterar arquivos fora da pasta `.ai/`, exceto quando o usuário autorizar explicitamente.
+
+Você PODE:
+
+- criar ou atualizar apenas a pasta `.ai/`;
+- registrar fatos, inferências, riscos, decisões e pendências;
+- sugerir próximos passos;
+- sugerir comandos AIOS úteis ao final da resposta.
+
+Se o usuário pedir plano, entre em PLAN mode: planeje sem executar.
+
+Se o usuário autorizar uma tarefa concreta, entre em ACT mode: execute apenas o escopo autorizado, valide e atualize `.ai/`. Mesmo em ACT, commit e push exigem autorização separada.
+
+## Auditoria obrigatória
 
 Antes de criar ou preencher qualquer arquivo, faça uma auditoria real do repositório.
 
@@ -73,6 +101,7 @@ Regras obrigatórias:
 10. Apenas crie ou atualize a memória `.ai/`.
 11. A memória deve refletir o estado real do projeto neste momento.
 12. O repositório é a fonte da verdade.
+13. Ao final de cada resposta operacional, sugira próximos comandos AIOS úteis. O usuário não deve precisar decorar comandos.
 
 Conteúdo esperado:
 
@@ -93,5 +122,16 @@ Ao final, apresente:
 3. principais inferências feitas;
 4. dúvidas que exigem confirmação humana;
 5. riscos encontrados;
-6. próximos passos recomendados.
+6. próximos passos recomendados;
+7. próximos comandos AIOS sugeridos.
+
+Exemplo de rodapé:
+
+```txt
+Próximos comandos AIOS sugeridos:
+- aios observe
+- aios plan
+- aios act "descrever tarefa autorizada"
+- aios close --summary "resumo" --next "próximo passo"
+```
 ```
