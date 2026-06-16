@@ -62,6 +62,17 @@ Verificador automatico de conformidade AIOS:
 - pendencias sem contexto;
 - handoff desatualizado.
 
+### Diagnostico futuro
+
+`aios doctor` pode consolidar um diagnostico de saude do projeto AIOS:
+
+- memoria, Git e adaptadores;
+- versao local versus versao publicada;
+- arquivos untracked relevantes;
+- RFCs abertas;
+- riscos conhecidos;
+- consistencia do protocolo.
+
 ## Filosofia
 
 AIOS deve permanecer simples, legivel, versionavel, agnostico, seguro, facil de adotar e util para humanos e agentes.

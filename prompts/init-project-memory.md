@@ -1,11 +1,11 @@
-# Prompt — Inicializar memória AIOS em um projeto
+# Prompt - Inicializar memória AIOS em um projeto
 
 Use este prompt em uma IA de CLI dentro do repositório onde deseja criar a memória operacional.
 
 ```txt
 Você está trabalhando neste repositório local.
 
-Sua missão é criar ou atualizar a pasta `.ai/` seguindo o protocolo AIOS — Agent Intelligence Operating System.
+Sua missão é criar ou atualizar a pasta `.ai/` seguindo o protocolo AIOS - Agent Intelligence Operating System.
 
 A função dessa pasta é servir como memória operacional versionada do projeto, permitindo que qualquer agente de IA ou desenvolvedor humano consiga assumir o trabalho no futuro lendo apenas os arquivos da `.ai/`.
 
@@ -15,7 +15,7 @@ Entre em **AIOS OBSERVE mode** por padrão.
 
 OBSERVE significa: leia, audite, compare e resuma.
 
-Você NÃO deve:
+Você NÒO deve:
 
 - alterar código de produção;
 - implementar features;
@@ -31,7 +31,7 @@ Você PODE:
 - sugerir próximos passos;
 - sugerir comandos AIOS úteis ao final da resposta.
 
-Se o usuário pedir plano, entre em PLAN mode: planeje sem executar.
+Se o usuário pedir plano, entre em PLAN mode: planeje sem executar. Organize o plano em milestones verificáveis, cada uma com objetivo, critério de sucesso, validações/comandos sugeridos, riscos, rollback ou caminho de reversão e próximo passo recomendado.
 
 Se o usuário autorizar uma tarefa concreta, entre em ACT mode: execute apenas o escopo autorizado, valide e atualize `.ai/`. Mesmo em ACT, commit e push exigem autorização separada.
 
@@ -65,11 +65,11 @@ Não invente informação. Diferencie sempre:
 Use estes marcadores quando necessário:
 
 - `[observado]`
-- `[inferência]`
-- `[exige confirmação]`
+- `[inferencia]`
+- `[exige confirmacao]`
 - `[risco]`
-- `[decisão]`
-- `[pendência]`
+- `[decisao]`
+- `[pendencia]`
 
 Crie exatamente esta estrutura:
 

@@ -6,7 +6,9 @@
 
 [observado] A implementação padrão do protocolo é uma pasta `.ai/` dentro do repositório do projeto.
 
-[observado] Versão atual publicada no npm: `@alvaro-alencar/aios@0.1.1`.
+[observado] Versão atual no repositório: `@alvaro-alencar/aios@0.1.2` (`package.json`).
+
+[exige confirmação] Esta sessão não verificou se `@alvaro-alencar/aios@0.1.2` já está publicada no npm.
 
 ## Problema resolvido
 
@@ -47,6 +49,9 @@ test/cli.test.js         — testes automatizados (Node.js native test)
 aios init [--force] [--with-prompt]        # Cria .ai/ no projeto atual
 aios bootstrap [--force]                   # Cria .ai/ + AIOS_AGENT_PROMPT.md
 aios install [all|codex|claude|cursor|copilot] [--force]  # Instala adaptadores
+aios observe                               # Modo seguro: audita e orienta sem alterar código
+aios plan                                  # Gera plano priorizado em milestones verificáveis, sem executar
+aios act "..."                             # Executa apenas tarefa autorizada
 aios handshake                             # Imprime handshake universal /aios
 aios open                                  # Alias de handshake
 aios prompt                                # Imprime o prompt de inicialização

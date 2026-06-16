@@ -1,8 +1,8 @@
-# AIOS v1 — Especificação do Protocolo
+# AIOS v1 - Especificação do Protocolo
 
 ## Nome
 
-AIOS — Agent Intelligence Operating System.
+AIOS - Agent Intelligence Operating System.
 
 ## Definição
 
@@ -66,11 +66,11 @@ AIOS não substitui:
 Agentes devem usar marcadores para separar natureza da informação:
 
 - `[observado]`: fato confirmado no repositório.
-- `[inferência]`: conclusão razoável, mas não comprovada diretamente.
-- `[exige confirmação]`: ponto que precisa de humano ou fonte externa.
+- `[inferencia]`: conclusão razoável, mas não comprovada diretamente.
+- `[exige confirmacao]`: ponto que precisa de humano ou fonte externa.
 - `[risco]`: risco técnico, operacional, jurídico, de segurança ou produto.
-- `[decisão]`: decisão relevante registrada.
-- `[pendência]`: ação ainda não concluída.
+- `[decisao]`: decisão relevante registrada.
+- `[pendencia]`: ação ainda não concluída.
 
 ## Protocolo de abertura de sessão
 
@@ -99,6 +99,21 @@ Durante o trabalho, o agente deve:
 - não copiar segredos;
 - não assumir documentação antiga como verdade se o código contradizê-la;
 - separar fato, inferência e dúvida.
+
+## Modo PLAN
+
+Quando operar em PLAN, o agente deve planejar sem executar mudanças de código, commits ou push.
+
+O plano deve ser priorizado e organizado em milestones verificáveis. Cada milestone deve conter, no mínimo:
+
+1. Objetivo.
+2. Critério de sucesso.
+3. Validações/comandos sugeridos.
+4. Riscos.
+5. Rollback ou caminho de reversão.
+6. Próximo passo recomendado.
+
+O objetivo é tornar o plano executável em ACT por partes pequenas, reversíveis e validáveis.
 
 ## Protocolo de encerramento de sessão
 

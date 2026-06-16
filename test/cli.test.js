@@ -110,6 +110,11 @@ test('plan prints planning mode without execution', () => {
   assert.match(output, /AIOS PLAN MODE/);
   assert.match(output, /Não altere código de produção/);
   assert.match(output, /plano de ação priorizado/);
+  assert.match(output, /milestones verificáveis/);
+  assert.match(output, /Objetivo/);
+  assert.match(output, /Critério de sucesso/);
+  assert.match(output, /Validações\/comandos sugeridos/);
+  assert.match(output, /Rollback ou caminho de reversão/);
 });
 
 test('act prints authorized task mode', () => {
@@ -131,6 +136,7 @@ test('adapter instructions enforce observe mode and command suggestions', () => 
   const agents = fs.readFileSync(path.join(dir, 'AGENTS.md'), 'utf8');
   assert.match(agents, /OBSERVE mode by default/);
   assert.match(agents, /Do not alter production code/);
+  assert.match(agents, /verifiable milestones/);
   assert.match(agents, /At the end of every operational response/);
   assert.match(agents, /aios plan/);
   assert.match(agents, /aios act/);

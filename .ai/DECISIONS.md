@@ -1,13 +1,13 @@
-# DECISIONS — AIOS
+# DECISIONS - AIOS
 
-## 2026-06-15 — AIOS como protocolo e CLI agnóstico
+## 2026-06-15 - AIOS como protocolo e CLI agnóstico
 
 **Status:** aceita
 **Tipo:** produto | arquitetura | processo
 
 ### Decisão
 
-[decisão] AIOS será tratado como protocolo agnóstico de memória operacional para agentes, com implementação padrão via pasta `.ai/` e CLI Node.js.
+[decisao] AIOS será tratado como protocolo agnóstico de memória operacional para agentes, com implementação padrão via pasta `.ai/` e CLI Node.js.
 
 ### Justificativa
 
@@ -33,14 +33,14 @@ Após uso em pelo menos três projetos reais de terceiros.
 
 ---
 
-## 2026-06-15 — CLI sem dependências externas na primeira versão
+## 2026-06-15 - CLI sem dependências externas na primeira versão
 
 **Status:** aceita
 **Tipo:** arquitetura
 
 ### Decisão
 
-[decisão] A primeira versão do CLI usa apenas módulos nativos do Node.js.
+[decisao] A primeira versão do CLI usa apenas módulos nativos do Node.js.
 
 ### Justificativa
 
@@ -66,14 +66,14 @@ Quando surgirem mais comandos ou necessidade de parsing avançado.
 
 ---
 
-## 2026-06-15 — Instalador de adaptadores (`aios install`)
+## 2026-06-15 - Instalador de adaptadores (`aios install`)
 
 **Status:** aceita
 **Tipo:** produto | experiência do usuário
 
 ### Decisão
 
-[decisão] O comando `aios install [all|codex|claude|cursor|copilot]` gera os arquivos de instrução de cada ferramenta de IA a partir de um conteúdo padronizado interno ao CLI.
+[decisao] O comando `aios install [all|codex|claude|cursor|copilot]` gera os arquivos de instrução de cada ferramenta de IA a partir de um conteúdo padronizado interno ao CLI.
 
 ### Justificativa
 
@@ -91,8 +91,43 @@ A experiência do usuário melhora drasticamente. O conteúdo dos adaptadores fi
 ### Riscos
 
 [risco] Atualizar o conteúdo dos adaptadores exige nova versão do pacote npm.
-[risco] Rodar `aios install` dentro do próprio repo AIOS gera arquivos não rastreados que podem confundir agentes.
+[risco] Rodar `aios install` dentro do próprio repo AIOS pode gerar ou alterar arquivos de adaptadores e confundir agentes se o estado Git não for checado antes; no estado observado em 2026-06-16, os adaptadores principais já estavam rastreados e apenas `.claude/` aparecia como não rastreado.
 
 ### Revisar quando
 
 Se o conteúdo dos adaptadores precisar de customização por projeto.
+
+---
+
+## 2026-06-16 - PLAN com milestones verificáveis
+
+**Status:** aceita
+**Tipo:** produto | processo | segurança operacional
+
+### Decisão
+
+[decisao] O modo PLAN deve organizar planos em milestones verificáveis, sem executar mudanças.
+
+Cada milestone deve conter objetivo, critério de sucesso, validações/comandos sugeridos, riscos, rollback ou caminho de reversão e próximo passo recomendado.
+
+### Justificativa
+
+Planos em milestones pequenos reduzem ambiguidade para agentes em ACT, melhoram validação incremental e deixam reversão mais explícita.
+
+### Alternativas consideradas
+
+- Manter PLAN como lista priorizada genérica.
+- Criar sistema formal de planning com schema próprio.
+- Implementar novo comando para planejamento.
+
+### Impacto
+
+[observado] A mudança é textual e compatível com o CLI atual: atualiza instrução do `aios plan`, docs, specs, prompts e testes sem adicionar complexidade de parser.
+
+### Riscos
+
+[risco] O CLI orienta o formato, mas ainda não valida semanticamente se um agente gerou milestones completos.
+
+### Revisar quando
+
+Quando existir `aios doctor` ou validador semântico capaz de diagnosticar qualidade da memória e dos planos.

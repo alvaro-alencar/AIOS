@@ -62,7 +62,7 @@ Modo seguro padrão. O agente deve ler a memória, comparar com o repositório, 
 aios plan
 ```
 
-Modo de planejamento. O agente deve transformar a observação em plano priorizado, sem executar.
+Modo de planejamento. O agente deve transformar a observação em plano priorizado, sem executar. O plano deve ser organizado em milestones verificáveis, cada uma com objetivo, critério de sucesso, validações/comandos sugeridos, riscos, rollback ou caminho de reversão e próximo passo recomendado.
 
 ```bash
 aios act "tarefa autorizada"
@@ -91,7 +91,7 @@ aios init        # cria .ai/ no projeto atual
 aios bootstrap   # cria .ai/ e .ai/AIOS_AGENT_PROMPT.md
 aios install all # cria .ai/ e instruções para agentes (Codex, Claude, Cursor, Copilot)
 aios observe     # modo seguro: audita e orienta sem alterar código
-aios plan        # cria plano priorizado sem executar
+aios plan        # cria plano priorizado em milestones verificáveis, sem executar
 aios act "..."   # executa apenas tarefa autorizada
 aios handshake   # imprime o handshake universal /aios em modo observe
 aios open        # alias de handshake
@@ -150,7 +150,7 @@ AIOS é essa camada.
 - [x] CLI `aios bootstrap`
 - [x] CLI `aios install all` (Codex, Claude, Cursor, Copilot)
 - [x] CLI `aios observe`
-- [x] CLI `aios plan`
+- [x] CLI `aios plan` com milestones verificáveis
 - [x] CLI `aios act`
 - [x] CLI `aios handshake` / `aios open`
 - [x] CLI `aios audit`
@@ -159,6 +159,7 @@ AIOS é essa camada.
 - [x] CLI `aios close`
 - [x] Testes iniciais do CLI
 - [ ] Validador semântico de consistência da memória
+- [ ] RFC `aios doctor` para diagnóstico de saúde AIOS
 - [ ] Exemplos reais por tipo de projeto
 
 ## Status

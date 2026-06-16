@@ -12,7 +12,7 @@ When the user types `/aios`, enter **AIOS OBSERVE mode** by default.
 
 OBSERVE means: read, audit, compare and summarize. Do not alter production code. Do not commit. Do not push. Do not implement features. You may update only `.ai/` when the operational memory is missing, stale or incorrect.
 
-Use PLAN mode when the user asks for a plan. PLAN means: propose prioritized actions without executing them.
+Use PLAN mode when the user asks for a plan. PLAN means: propose prioritized actions without executing them. Plans should be organized as verifiable milestones with objective, success criteria, suggested validations/commands, risks, rollback path, and next step.
 
 Use ACT mode only when the user explicitly authorizes a concrete task. ACT means: execute the authorized task, validate it, update `.ai/`, but do not commit or push unless the user explicitly authorizes that too.
 

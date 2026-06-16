@@ -6,14 +6,34 @@ Este documento descreve a futura interface de linha de comando do AIOS.
 
 Automatizar a criacao, auditoria e manutencao da memoria operacional `.ai/` em projetos locais.
 
-## Comandos previstos
+## Comandos implementados
 
 - `aios init`: cria a estrutura `.ai/` no projeto atual a partir de um template.
-- `aios audit`: compara a memoria AIOS com o estado real do repositorio.
-- `aios handoff`: gera ou atualiza o arquivo `.ai/HANDOFF.md`.
+- `aios bootstrap`: cria `.ai/` e `.ai/AIOS_AGENT_PROMPT.md`.
+- `aios install`: instala adaptadores para ferramentas de IA.
+- `aios observe`: orienta auditoria segura sem alterar codigo.
+- `aios plan`: gera plano priorizado em milestones verificaveis, sem executar.
+- `aios act`: executa apenas tarefa autorizada.
+- `aios audit`: verifica estrutura AIOS, marcadores e estado Git.
+- `aios handoff`: imprime o arquivo `.ai/HANDOFF.md`.
 - `aios close`: encerra uma sessao e atualiza arquivos vivos.
 - `aios status`: mostra resumo operacional do projeto.
+- `aios handshake` / `aios open`: imprime o handshake universal em modo observe.
+
+## RFC futura: `aios doctor`
+
+`aios doctor` pode se tornar um comando de diagnostico de saude do AIOS.
+
+Possiveis verificacoes:
+
+- memoria `.ai/` e arquivos obrigatorios;
+- estado Git e arquivos untracked relevantes;
+- adaptadores instalados;
+- versao local versus versao npm;
+- RFCs abertas;
+- riscos conhecidos;
+- consistencia do protocolo.
 
 ## Prioridade
 
-A primeira versao deve estabilizar protocolo e templates. Depois disso, o CLI pode nascer pequeno e crescer por comandos.
+A prioridade e manter o CLI pequeno. Novos comandos devem nascer apenas quando reduzirem trabalho real sem transformar o AIOS em um sistema complexo.

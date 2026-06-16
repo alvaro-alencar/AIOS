@@ -30,6 +30,15 @@ Modo de planejamento.
 
 O agente deve transformar a observação em plano priorizado, sem executar mudanças de código.
 
+O plano deve ser organizado em milestones verificáveis. Cada milestone deve conter, no mínimo:
+
+1. Objetivo.
+2. Critério de sucesso.
+3. Validações/comandos sugeridos.
+4. Riscos.
+5. Rollback ou caminho de reversão.
+6. Próximo passo recomendado.
+
 ### ACT
 
 Modo de ação.
