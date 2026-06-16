@@ -1,6 +1,6 @@
 {
   "name": "@alvaro-alencar/aios",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "AIOS - Agent Intelligence Operating System: operational memory protocol and CLI for AI-assisted projects.",
   "type": "module",
   "bin": {
