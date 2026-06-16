@@ -32,6 +32,9 @@ function main() {
     case 'init':
       init();
       break;
+    case 'install':
+      installAdapters();
+      break;
     case 'audit':
       audit();
       break;
@@ -110,6 +113,55 @@ function bootstrap() {
   console.log('');
   console.log('Agora peça ao agente de IA:');
   console.log('/aios');
+}
+
+function installAdapters() {
+  const cwd = process.cwd();
+  const force = flags.has('--force');
+  const rawTarget = args[1] && !args[1].startsWith('--') ? args[1] : 'all';
+  const target = rawTarget.toLowerCase();
+
+  const validTargets = ['all', 'codex', 'claude', 'cursor', 'copilot'];
+  if (!validTargets.includes(target)) {
+    fail(`Adaptador desconhecido: ${rawTarget}\nUse: aios install all|codex|claude|cursor|copilot`);
+  }
+
+  if (!fs.existsSync(path.join(cwd, '.ai'))) {
+    copyDirectory(templateDir, path.join(cwd, '.ai'), { overwrite: false });
+  }
+  writeAgentPrompt(cwd);
+
+  const adapters = getAdapterFiles();
+  const selected = target === 'all'
+    ? Object.entries(adapters)
+    : Object.entries(adapters).filter(([name]) => name === target);
+
+  const written = [];
+  const skipped = [];
+
+  for (const [, files] of selected) {
+    for (const file of files) {
+      const absolutePath = path.join(cwd, file.path);
+      if (fs.existsSync(absolutePath) && !force) {
+        skipped.push(file.path);
+        continue;
+      }
+      fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
+      fs.writeFileSync(absolutePath, file.content, 'utf8');
+      written.push(file.path);
+    }
+  }
+
+  console.log('AIOS adapters instalados.');
+  if (written.length > 0) {
+    console.log('Arquivos criados/atualizados:');
+    for (const file of written) console.log(`- ${file}`);
+  }
+  if (skipped.length > 0) {
+    console.log('Arquivos preservados porque ja existiam:');
+    for (const file of skipped) console.log(`- ${file}`);
+    console.log('Use --force para sobrescrever.');
+  }
 }
 
 function prompt() {
@@ -248,13 +300,32 @@ function closeSession() {
 }
 
 function help() {
-  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memoria .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios handshake                              Imprime o handshake universal /aios\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memoria com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessao e atualiza memoria\n  aios --version                              Mostra versao\n  aios --help                                 Mostra ajuda\n\nFluxo ideal dentro de uma IA de CLI:\n  1. Abra Codex/Claude/Cursor no projeto\n  2. Digite apenas: /aios\n\nEnquanto a ferramenta nao tiver /aios nativo:\n  1. Rode: npx @alvaro-alencar/aios handshake\n  2. Cole a saida na IA\n\nAo encerrar:\n  aios close --summary \"o que foi feito\" --next \"proximo passo\"`);
+  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memoria .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios install [all|codex|claude|cursor|copilot] [--force]\n                                                Instala arquivos de instrucao para ferramentas de IA\n  aios handshake                              Imprime o handshake universal /aios\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memoria com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessao e atualiza memoria\n  aios --version                              Mostra versao\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado para deixar um projeto pronto para agentes:\n  npx @alvaro-alencar/aios install all\n\nDepois abra Codex, Claude Code, Cursor ou Copilot no projeto.\n\nAo encerrar:\n  aios close --summary \"o que foi feito\" --next \"proximo passo\"`);
 }
 
 function version() {
   const pkgPath = path.join(rootDir, 'package.json');
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
   console.log(pkg.version);
+}
+
+function getAdapterFiles() {
+  const shared = `# AIOS Agent Instructions\n\nThis project uses AIOS, an operational memory protocol for AI-assisted projects.\n\nWhen starting work in this repository:\n\n1. Check whether .ai/ exists.\n2. If .ai/ does not exist, run: npx @alvaro-alencar/aios bootstrap\n3. If .ai/AIOS_AGENT_PROMPT.md exists, read it and execute its instructions.\n4. Read .ai/HANDOFF.md, .ai/SESSION.md, .ai/CONTEXT.md, .ai/TODO.md, .ai/DECISIONS.md and .ai/VALIDATION_CHECKLIST.md.\n5. Run git status and git log --oneline -10.\n6. Compare the AIOS memory with the real repository state.\n7. Keep facts, inferences, risks, decisions and pending tasks clearly separated.\n8. Never write secrets, tokens, passwords, API keys, certificates, .env contents, credentials or sensitive personal data into AIOS memory.\n9. Before ending a meaningful session, update the AIOS memory or run: npx @alvaro-alencar/aios close --summary \"summary\" --next \"next step\"\n\nIf the user types /aios, execute the AIOS handshake for this project.\n`;
+
+  return {
+    codex: [
+      { path: 'AGENTS.md', content: shared }
+    ],
+    claude: [
+      { path: 'CLAUDE.md', content: shared }
+    ],
+    cursor: [
+      { path: path.join('.cursor', 'rules', 'aios.mdc'), content: `---\nalwaysApply: true\n---\n\n${shared}` }
+    ],
+    copilot: [
+      { path: path.join('.github', 'copilot-instructions.md'), content: shared }
+    ]
+  };
 }
 
 function copyDirectory(source, target, options = {}) {
