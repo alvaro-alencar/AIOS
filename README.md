@@ -32,7 +32,7 @@ npx @alvaro-alencar/aios install all
 
 Isso cria a memória `.ai/` e os arquivos de instrução para as principais ferramentas de IA.
 
-Depois abra Codex, Claude Code, Cursor ou Copilot no projeto. O agente encontrará as instruções e executará o protocolo AIOS automaticamente.
+Depois abra Codex, Claude Code, Cursor ou Copilot no projeto. O agente encontrará as instruções e executará o protocolo AIOS.
 
 Em ferramentas com suporte nativo ao comando, basta digitar:
 
@@ -40,10 +40,48 @@ Em ferramentas com suporte nativo ao comando, basta digitar:
 /aios
 ```
 
+Por segurança, `/aios` entra em **OBSERVE** por padrão: o agente lê, audita, compara e resume, mas não altera código, não commita e não faz push.
+
 Sem suporte nativo, use:
 
 ```bash
 npx @alvaro-alencar/aios handshake
+```
+
+## Modos operacionais
+
+AIOS separa observação, planejamento e execução para evitar que agentes virem workaholics sem autorização humana.
+
+```bash
+aios observe
+```
+
+Modo seguro padrão. O agente deve ler a memória, comparar com o repositório, identificar riscos e sugerir próximos passos. Não deve alterar código de produção, commitar ou fazer push.
+
+```bash
+aios plan
+```
+
+Modo de planejamento. O agente deve transformar a observação em plano priorizado, sem executar.
+
+```bash
+aios act "tarefa autorizada"
+```
+
+Modo de ação. O agente só deve executar a tarefa explicitamente autorizada. Mesmo em ACT, commit e push exigem autorização separada.
+
+## Rodapé operacional
+
+As instruções geradas pelo AIOS orientam o agente a terminar respostas operacionais sugerindo próximos comandos AIOS. O usuário não precisa decorar a CLI.
+
+Exemplo:
+
+```txt
+Próximos comandos AIOS sugeridos:
+- aios observe
+- aios plan
+- aios act "corrigir primeiro item do plano"
+- aios close --summary "resumo" --next "próximo passo"
 ```
 
 ## Uso rápido
@@ -52,7 +90,10 @@ npx @alvaro-alencar/aios handshake
 aios init        # cria .ai/ no projeto atual
 aios bootstrap   # cria .ai/ e .ai/AIOS_AGENT_PROMPT.md
 aios install all # cria .ai/ e instruções para agentes (Codex, Claude, Cursor, Copilot)
-aios handshake   # imprime o handshake universal /aios
+aios observe     # modo seguro: audita e orienta sem alterar código
+aios plan        # cria plano priorizado sem executar
+aios act "..."   # executa apenas tarefa autorizada
+aios handshake   # imprime o handshake universal /aios em modo observe
 aios open        # alias de handshake
 aios prompt      # imprime o prompt completo para preencher a memória
 aios audit       # verifica estrutura AIOS, marcadores pendentes e estado Git
@@ -95,6 +136,8 @@ AIOS é essa camada.
 5. O próximo agente deve conseguir continuar o trabalho sem perguntar onde está.
 6. A memória deve ser útil antes de ser bonita.
 7. O protocolo deve ser agnóstico de stack, linguagem, framework e ferramenta de IA.
+8. Observar vem antes de planejar; planejar vem antes de agir.
+9. Execução exige autorização explícita.
 
 ## Roadmap
 
@@ -106,6 +149,9 @@ AIOS é essa camada.
 - [x] CLI `aios init`
 - [x] CLI `aios bootstrap`
 - [x] CLI `aios install all` (Codex, Claude, Cursor, Copilot)
+- [x] CLI `aios observe`
+- [x] CLI `aios plan`
+- [x] CLI `aios act`
 - [x] CLI `aios handshake` / `aios open`
 - [x] CLI `aios audit`
 - [x] CLI `aios status`
@@ -119,4 +165,4 @@ AIOS é essa camada.
 
 AIOS está publicado no npm como `@alvaro-alencar/aios`.
 
-A versão `0.1.1` adiciona o instalador de adaptadores para Codex, Claude Code, Cursor e GitHub Copilot.
+A versão atual no repositório adiciona modos operacionais para controlar o comportamento do agente: OBSERVE, PLAN e ACT. Publique uma nova versão npm para distribuir globalmente.

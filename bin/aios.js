@@ -24,7 +24,7 @@ const REQUIRED_FILES = [
 ];
 
 const args = process.argv.slice(2);
-const command = args[0] ?? 'help';
+const command = args[0] ?? 'install';
 const flags = new Set(args.slice(1));
 
 function main() {
@@ -53,9 +53,18 @@ function main() {
     case 'bootstrap':
       bootstrap();
       break;
+    case 'observe':
+      operationalMode('observe');
+      break;
+    case 'plan':
+      operationalMode('plan');
+      break;
+    case 'act':
+      operationalMode('act');
+      break;
     case 'handshake':
     case 'open':
-      handshake();
+      handshake('observe');
       break;
     case 'help':
     case '--help':
@@ -93,8 +102,7 @@ function init() {
 
   console.log('AIOS inicializado em .ai/');
   console.log('Isso criou a estrutura da memória. Para preencher com inteligência contextual, use uma IA no projeto.');
-  console.log('Próximo passo recomendado dentro do Codex/Claude/Cursor:');
-  console.log('  /aios');
+  printSuggestedCommands(['aios observe', 'aios plan', 'aios close --summary "sessão inicializada" --next "preencher memória"']);
 }
 
 function bootstrap() {
@@ -110,9 +118,7 @@ function bootstrap() {
   console.log('AIOS bootstrap concluído.');
   console.log('- Estrutura .ai/ pronta.');
   console.log(`- Prompt para agente criado em: ${path.relative(cwd, promptFile)}`);
-  console.log('');
-  console.log('Agora peça ao agente de IA:');
-  console.log('/aios');
+  printSuggestedCommands(['/aios', 'aios observe', 'aios plan']);
 }
 
 function installAdapters() {
@@ -162,6 +168,7 @@ function installAdapters() {
     for (const file of skipped) console.log(`- ${file}`);
     console.log('Use --force para sobrescrever.');
   }
+  printSuggestedCommands(['aios observe', 'aios plan', 'aios act "tarefa autorizada"', 'aios close --summary "..." --next "..."']);
 }
 
 function prompt() {
@@ -173,20 +180,43 @@ function prompt() {
   console.log(content);
 }
 
-function handshake() {
+function operationalMode(mode) {
+  console.log(getOperationalInstruction(mode));
+}
+
+function handshake(mode = 'observe') {
   const cwd = process.cwd();
   const memoryDir = path.join(cwd, '.ai');
   const promptFile = path.join(memoryDir, 'AIOS_AGENT_PROMPT.md');
 
-  const instruction = `AIOS HANDSHAKE\n\nVocê recebeu o comando /aios. Execute o protocolo AIOS neste projeto.\n\n1. Verifique se existe a pasta .ai/.\n2. Se .ai/ não existir, rode: npx @alvaro-alencar/aios bootstrap\n3. Se .ai/AIOS_AGENT_PROMPT.md existir, leia esse arquivo e execute integralmente as instruções.\n4. Leia, nesta ordem: .ai/HANDOFF.md, .ai/SESSION.md, .ai/CONTEXT.md, .ai/TODO.md, .ai/DECISIONS.md e .ai/VALIDATION_CHECKLIST.md.\n5. Rode: git status\n6. Rode: git log --oneline -10\n7. Compare a memória AIOS com o estado real do repositório.\n8. Se a memória estiver genérica, incompleta ou desatualizada, audite o repositório e atualize a pasta .ai/.\n9. Não registre segredos, tokens, senhas, chaves, certificados, conteúdo de .env, credenciais ou dados pessoais sensíveis.\n10. Ao final, responda com um resumo operacional curto: estado da memória, estado do Git, riscos imediatos e próximo passo recomendado.\n\nSe precisar encerrar a sessão depois, use: npx @alvaro-alencar/aios close --summary "resumo" --next "próximo passo"`;
-
-  console.log(instruction);
+  console.log(getOperationalInstruction(mode));
 
   if (!fs.existsSync(memoryDir)) {
-    console.log('\nNota: .ai/ ainda não existe neste diretório. O agente deve rodar bootstrap.');
+    console.log('\nNota: .ai/ ainda não existe neste diretório. O agente deve rodar bootstrap antes de observar.');
   } else if (!fs.existsSync(promptFile)) {
-    console.log('\nNota: .ai/ existe, mas AIOS_AGENT_PROMPT.md não existe. O agente pode rodar bootstrap ou usar a memória existente.');
+    console.log('\nNota: .ai/ existe, mas AIOS_AGENT_PROMPT.md não existe. O agente pode usar a memória existente ou rodar bootstrap com cuidado.');
   }
+}
+
+function getOperationalInstruction(mode) {
+  const normalized = mode.toLowerCase();
+  const header = `AIOS ${normalized.toUpperCase()} MODE`;
+  const base = `Você está operando em um projeto compatível com AIOS.\n\nRegras globais:\n\n1. O repositório é a fonte da verdade.\n2. Leia a memória AIOS antes de agir: .ai/HANDOFF.md, .ai/SESSION.md, .ai/CONTEXT.md, .ai/TODO.md, .ai/DECISIONS.md e .ai/VALIDATION_CHECKLIST.md.\n3. Rode git status e git log --oneline -10 antes de qualquer conclusão operacional.\n4. Nunca registre segredos, tokens, senhas, chaves, certificados, conteúdo de .env, credenciais ou dados pessoais sensíveis.\n5. Separe claramente [observado], [inferência], [risco], [pendência], [decisão] e [exige confirmação].\n6. Ao final de cada resposta, sugira os próximos comandos AIOS úteis para o usuário. O usuário não deve precisar decorar comandos.\n`;
+
+  if (normalized === 'observe') {
+    return `${header}\n\n/aios entra em OBSERVE por padrão.\n\n${base}\nModo OBSERVE:\n\n- Leia, audite, compare e resuma.\n- Não altere código de produção.\n- Não crie commits.\n- Não faça push.\n- Não implemente features.\n- Pode atualizar apenas a pasta .ai/ quando isso for necessário para corrigir a memória operacional.\n- Se encontrar problemas, registre riscos e proponha próximos passos.\n\nSaída esperada:\n\n1. Estado da memória AIOS.\n2. Estado do Git.\n3. Divergências entre memória e repositório.\n4. Riscos imediatos.\n5. Próximo passo recomendado.\n6. Próximos comandos AIOS sugeridos.\n\nPróximos comandos AIOS sugeridos:\n- aios plan\n- aios act \"descrever tarefa autorizada\"\n- aios close --summary \"resumo\" --next \"próximo passo\"`;
+  }
+
+  if (normalized === 'plan') {
+    return `${header}\n\n${base}\nModo PLAN:\n\n- Transforme observações em plano de ação priorizado.\n- Não altere código de produção.\n- Não crie commits.\n- Não faça push.\n- Pode atualizar apenas .ai/ se a memória estiver incorreta ou incompleta.\n- Classifique ações por impacto, risco e ordem recomendada.\n- Explique o que exigiria confirmação humana antes de executar.\n\nSaída esperada:\n\n1. Plano recomendado.\n2. Justificativa curta.\n3. Riscos e dependências.\n4. O que pode ser feito em modo ACT.\n5. Próximos comandos AIOS sugeridos.\n\nPróximos comandos AIOS sugeridos:\n- aios act \"executar o primeiro item do plano\"\n- aios observe\n- aios close --summary \"plano criado\" --next \"executar item 1\"`;
+  }
+
+  if (normalized === 'act') {
+    const task = args.slice(1).join(' ').trim();
+    return `${header}\n\n${base}\nModo ACT:\n\n- Execute somente a tarefa explicitamente autorizada pelo usuário.\n- Antes de alterar código, declare o escopo pretendido.\n- Faça mudanças pequenas, rastreáveis e reversíveis.\n- Rode validações relevantes.\n- Atualize .ai/ com fatos, riscos, decisões e pendências.\n- Não faça commit nem push sem autorização explícita separada.\n\nTarefa autorizada recebida:\n\n${task || '[exige confirmação] Nenhuma tarefa específica foi informada. Peça autorização antes de agir.'}\n\nSaída esperada:\n\n1. Escopo executado.\n2. Arquivos alterados.\n3. Validações rodadas.\n4. Riscos remanescentes.\n5. Próximos comandos AIOS sugeridos.\n\nPróximos comandos AIOS sugeridos:\n- aios observe\n- aios close --summary \"mudança executada\" --next \"validar/commitar\"`;
+  }
+
+  fail(`Modo desconhecido: ${mode}`);
 }
 
 function audit() {
@@ -220,6 +250,7 @@ function audit() {
   printGitSnapshot(git);
   console.log('');
   console.log('Observação: esta auditoria verifica estrutura, marcadores pendentes e estado Git. A consistência semântica profunda ainda depende de revisão por agente/humano.');
+  printSuggestedCommands(['aios observe', 'aios plan', 'aios close --summary "auditoria feita" --next "decidir próximo passo"']);
 }
 
 function status() {
@@ -241,6 +272,7 @@ function status() {
 
   console.log('');
   printGitSnapshot(git);
+  printSuggestedCommands(['aios observe', 'aios handoff', 'aios close --summary "status revisado" --next "..."']);
 }
 
 function handoff() {
@@ -259,6 +291,7 @@ function handoff() {
     console.log('\n...');
     console.log('Handoff truncado em 80 linhas. Abra .ai/HANDOFF.md para ver tudo.');
   }
+  printSuggestedCommands(['aios observe', 'aios plan', 'aios close --summary "handoff revisado" --next "..."']);
 }
 
 function closeSession() {
@@ -297,10 +330,11 @@ function closeSession() {
   console.log('- .ai/SESSION.md');
   console.log('- .ai/HANDOFF.md');
   console.log('- .ai/LOG.md');
+  printSuggestedCommands(['aios observe', 'aios handoff']);
 }
 
 function help() {
-  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memória .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios install [all|codex|claude|cursor|copilot] [--force]\n                                              Instala arquivos de instrução para ferramentas de IA\n  aios handshake                              Imprime o handshake universal /aios\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memória com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary "..." --next "..."   Encerra sessão e atualiza memória\n  aios --version                              Mostra versão\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado para deixar um projeto pronto para agentes:\n  npx @alvaro-alencar/aios install all\n\nDepois abra Codex, Claude Code, Cursor ou Copilot no projeto.\n\nAo encerrar:\n  aios close --summary "o que foi feito" --next "próximo passo"`);
+  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memória .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios install [all|codex|claude|cursor|copilot] [--force]\n                                              Instala arquivos de instrução para ferramentas de IA\n  aios observe                                Modo seguro padrão: audita e orienta sem alterar código\n  aios plan                                   Gera plano priorizado sem executar\n  aios act \"tarefa autorizada\"              Executa somente ação explicitamente autorizada\n  aios handshake                              Imprime o handshake universal /aios em modo observe\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memória com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessão e atualiza memória\n  aios --version                              Mostra versão\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado:\n  npx @alvaro-alencar/aios install all\n  aios observe\n  aios plan\n  aios act \"tarefa autorizada\"\n  aios close --summary \"o que foi feito\" --next \"próximo passo\"\n\nRegra de segurança:\n  /aios entra em OBSERVE por padrão. O agente não deve alterar código, commitar ou fazer push sem autorização explícita.`);
 }
 
 function version() {
@@ -310,7 +344,7 @@ function version() {
 }
 
 function getAdapterFiles() {
-  const shared = `# AIOS Agent Instructions\n\nThis project uses AIOS, an operational memory protocol for AI-assisted projects.\n\nWhen starting work in this repository:\n\n1. Check whether .ai/ exists.\n2. If .ai/ does not exist, run: npx @alvaro-alencar/aios bootstrap\n3. If .ai/AIOS_AGENT_PROMPT.md exists, read it and execute its instructions.\n4. Read .ai/HANDOFF.md, .ai/SESSION.md, .ai/CONTEXT.md, .ai/TODO.md, .ai/DECISIONS.md and .ai/VALIDATION_CHECKLIST.md.\n5. Run git status and git log --oneline -10.\n6. Compare the AIOS memory with the real repository state.\n7. Keep facts, inferences, risks, decisions and pending tasks clearly separated.\n8. Never write secrets, tokens, passwords, API keys, certificates, .env contents, credentials or sensitive personal data into AIOS memory.\n9. Before ending a meaningful session, update the AIOS memory or run: npx @alvaro-alencar/aios close --summary "summary" --next "next step"\n\nIf the user types /aios, execute the AIOS handshake for this project.\n`;
+  const shared = `# AIOS Agent Instructions\n\nThis project uses AIOS, an operational memory protocol for AI-assisted projects.\n\n## Default behavior\n\nWhen the user types /aios, enter AIOS OBSERVE mode by default.\n\nOBSERVE means: read, audit, compare and summarize. Do not alter production code. Do not commit. Do not push. Do not implement features. You may update only .ai/ when the operational memory is missing, stale or incorrect.\n\nUse PLAN mode when the user asks for a plan. PLAN means: propose prioritized actions without executing them.\n\nUse ACT mode only when the user explicitly authorizes a concrete task. ACT means: execute the authorized task, validate it, update .ai/, but do not commit or push unless the user explicitly authorizes that too.\n\n## Startup protocol\n\n1. Check whether .ai/ exists.\n2. If .ai/ does not exist, run: npx @alvaro-alencar/aios bootstrap\n3. If .ai/AIOS_AGENT_PROMPT.md exists, read it and execute its instructions, respecting OBSERVE/PLAN/ACT mode.\n4. Read .ai/HANDOFF.md, .ai/SESSION.md, .ai/CONTEXT.md, .ai/TODO.md, .ai/DECISIONS.md and .ai/VALIDATION_CHECKLIST.md.\n5. Run git status and git log --oneline -10.\n6. Compare the AIOS memory with the real repository state.\n7. Keep facts, inferences, risks, decisions and pending tasks clearly separated.\n8. Never write secrets, tokens, passwords, API keys, certificates, .env contents, credentials or sensitive personal data into AIOS memory.\n\n## Response footer\n\nAt the end of every operational response, suggest the next useful AIOS commands. The user should not need to memorize commands. Example:\n\nNext AIOS commands:\n- aios observe\n- aios plan\n- aios act \"describe authorized task\"\n- aios close --summary \"summary\" --next \"next step\"\n\nBefore ending a meaningful session, update the AIOS memory or run: npx @alvaro-alencar/aios close --summary \"summary\" --next \"next step\"\n`;
 
   return {
     codex: [
@@ -326,6 +360,12 @@ function getAdapterFiles() {
       { path: path.join('.github', 'copilot-instructions.md'), content: shared }
     ]
   };
+}
+
+function printSuggestedCommands(commands) {
+  console.log('');
+  console.log('Próximos comandos AIOS sugeridos:');
+  for (const command of commands) console.log(`- ${command}`);
 }
 
 function copyDirectory(source, target, options = {}) {
