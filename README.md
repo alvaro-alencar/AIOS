@@ -6,45 +6,59 @@ A ideia central é simples: todo projeto deveria ter uma memória versionada, le
 
 O AIOS não é apenas uma pasta. A pasta `.ai/` é a implementação padrão do protocolo.
 
-## O problema
-
-Projetos modernos estão sendo trabalhados por humanos, assistentes de código, agentes de CLI, copilotos, modelos locais e ferramentas diferentes. Cada agente entra no projeto com pouco contexto e pode repetir análise, desfazer decisões antigas, ignorar riscos ou quebrar fluxos críticos.
-
-Código mostra o que existe. Commits mostram o que mudou. Issues mostram parte do plano. Mas falta uma camada persistente para responder o que o projeto é, como funciona, qual é o estado atual, quais decisões importam e como validar mudanças com segurança.
-
-AIOS é essa camada.
-
 ## Instalação
 
-### Via npx (sem instalação)
+Use diretamente com npx (sem instalação):
 
 ```bash
-npx @alvaro-alencar/aios init
+npx @alvaro-alencar/aios install all
 ```
 
-### Instalação global
+Ou instale globalmente:
 
 ```bash
 npm install -g @alvaro-alencar/aios
-aios init
+aios install all
 ```
 
-### Instalação local (desenvolvimento)
+## Fluxo recomendado
+
+Para deixar um projeto pronto para agentes de IA:
 
 ```bash
-git clone https://github.com/alvaro-alencar/AIOS.git
-cd AIOS
-npm link
+cd meu-projeto
+npx @alvaro-alencar/aios install all
+```
+
+Isso cria a memória `.ai/` e os arquivos de instrução para as principais ferramentas de IA.
+
+Depois abra Codex, Claude Code, Cursor ou Copilot no projeto. O agente encontrará as instruções e executará o protocolo AIOS automaticamente.
+
+Em ferramentas com suporte nativo ao comando, basta digitar:
+
+```txt
+/aios
+```
+
+Sem suporte nativo, use:
+
+```bash
+npx @alvaro-alencar/aios handshake
 ```
 
 ## Uso rápido
 
 ```bash
-aios init       # cria .ai/ no projeto atual
-aios audit      # verifica estrutura AIOS, marcadores pendentes e estado Git
-aios status     # mostra resumo operacional
-aios handoff    # imprime .ai/HANDOFF.md
-aios close      # encerra sessão e atualiza SESSION, HANDOFF e LOG
+aios init        # cria .ai/ no projeto atual
+aios bootstrap   # cria .ai/ e .ai/AIOS_AGENT_PROMPT.md
+aios install all # cria .ai/ e instruções para agentes (Codex, Claude, Cursor, Copilot)
+aios handshake   # imprime o handshake universal /aios
+aios open        # alias de handshake
+aios prompt      # imprime o prompt completo para preencher a memória
+aios audit       # verifica estrutura AIOS, marcadores pendentes e estado Git
+aios status      # mostra resumo operacional
+aios handoff     # imprime .ai/HANDOFF.md
+aios close       # encerra sessão e atualiza SESSION, HANDOFF e LOG
 ```
 
 Exemplo de encerramento:
@@ -53,53 +67,24 @@ Exemplo de encerramento:
 aios close --summary "Sessão concluída" --next "Rodar testes e abrir PR"
 ```
 
-Depois de rodar `aios init`, peça ao agente de IA no CLI:
-
-```txt
-Leia todo o repositório, audite a estrutura real do projeto e preencha a pasta `.ai/` seguindo o protocolo AIOS. Não altere código de produção. Não registre segredos. Separe fatos observados, inferências e dúvidas.
-```
-
-O prompt completo está em `prompts/init-project-memory.md`.
-
-## Handshake universal
-
-Dentro de qualquer ferramenta com suporte a comandos (Claude Code, Cursor, Codex):
-
-```txt
-/aios
-```
-
-Se a ferramenta não tiver `/aios` nativo, use:
-
-```bash
-npx @alvaro-alencar/aios handshake
-```
-
-Cole a saída no agente. Ele saberá o que fazer.
-
-## Desenvolvimento
-
-```bash
-npm run check
-npm run smoke
-npm test
-```
-
-## A implementação padrão
+## Arquivos gerados por `install all`
 
 ```txt
 .ai/
-  README.md
-  CONTEXT.md
-  SESSION.md
-  TODO.md
-  DECISIONS.md
-  HANDOFF.md
-  LOG.md
-  VALIDATION_CHECKLIST.md
-  RELATORIOS/
-    .gitkeep
+.ai/AIOS_AGENT_PROMPT.md
+AGENTS.md                          ← Codex (OpenAI)
+CLAUDE.md                          ← Claude Code (Anthropic)
+.cursor/rules/aios.mdc             ← Cursor
+.github/copilot-instructions.md    ← GitHub Copilot
 ```
+
+## O problema
+
+Projetos modernos são trabalhados por humanos, assistentes de código, agentes de CLI, copilotos, modelos locais e ferramentas diferentes. Cada agente entra no projeto com pouco contexto e pode repetir análise, desfazer decisões antigas, ignorar riscos ou quebrar fluxos críticos.
+
+Código mostra o que existe. Commits mostram o que mudou. Issues mostram parte do plano. Mas falta uma camada persistente para responder o que o projeto é, como funciona, qual é o estado atual, quais decisões importam e como validar mudanças com segurança.
+
+AIOS é essa camada.
 
 ## Princípios
 
@@ -113,19 +98,25 @@ npm test
 
 ## Roadmap
 
+- [x] Publicação npm `@alvaro-alencar/aios@0.1.0`
 - [x] Especificação inicial do protocolo
+- [x] Especificação AIOS Handshake v1
 - [x] Template padrão `.ai/`
 - [x] Prompt de inicialização manual
 - [x] CLI `aios init`
+- [x] CLI `aios bootstrap`
+- [x] CLI `aios install all` (Codex, Claude, Cursor, Copilot)
+- [x] CLI `aios handshake` / `aios open`
 - [x] CLI `aios audit`
 - [x] CLI `aios status`
 - [x] CLI `aios handoff`
 - [x] CLI `aios close`
 - [x] Testes iniciais do CLI
-- [ ] Adaptadores para Claude, Cursor, Codex, Copilot e ChatGPT
 - [ ] Validador semântico de consistência da memória
 - [ ] Exemplos reais por tipo de projeto
 
 ## Status
 
-AIOS está em versão inicial. A primeira versão funcional já permite criar a memória `.ai/`, auditar estrutura básica, consultar o handoff operacional e encerrar sessões atualizando a memória viva do projeto.
+AIOS está publicado no npm como `@alvaro-alencar/aios`.
+
+A versão `0.1.1` adiciona o instalador de adaptadores para Codex, Claude Code, Cursor e GitHub Copilot.

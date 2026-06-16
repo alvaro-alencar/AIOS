@@ -26,6 +26,7 @@ test('help prints usage', () => {
   assert.match(output, /AIOS/);
   assert.match(output, /aios init/);
   assert.match(output, /aios handshake/);
+  assert.match(output, /aios install/);
 });
 
 test('version prints package version', () => {
@@ -58,6 +59,32 @@ test('init creates required memory files', () => {
 test('bootstrap creates agent prompt', () => {
   const dir = tempProject();
   run(['bootstrap'], dir);
+  assert.equal(fs.existsSync(path.join(dir, '.ai/AIOS_AGENT_PROMPT.md')), true);
+});
+
+test('install all creates agent adapter files', () => {
+  const dir = tempProject();
+  run(['install', 'all'], dir);
+
+  const expected = [
+    'AGENTS.md',
+    'CLAUDE.md',
+    '.cursor/rules/aios.mdc',
+    '.github/copilot-instructions.md',
+    '.ai/AIOS_AGENT_PROMPT.md'
+  ];
+
+  for (const file of expected) {
+    assert.equal(fs.existsSync(path.join(dir, file)), true, `${file} should exist`);
+  }
+});
+
+test('install claude creates only claude adapter plus AIOS memory', () => {
+  const dir = tempProject();
+  run(['install', 'claude'], dir);
+
+  assert.equal(fs.existsSync(path.join(dir, 'CLAUDE.md')), true);
+  assert.equal(fs.existsSync(path.join(dir, 'AGENTS.md')), false);
   assert.equal(fs.existsSync(path.join(dir, '.ai/AIOS_AGENT_PROMPT.md')), true);
 });
 
