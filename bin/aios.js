@@ -113,14 +113,26 @@ function bootstrap() {
   const targetDir = path.join(cwd, '.ai');
   const force = flags.has('--force');
 
+  if (isInsideSelfRepo(cwd)) {
+    console.warn('[aviso] Você está rodando bootstrap dentro do próprio repositório AIOS.');
+    console.warn('No Windows, `npx @alvaro-alencar/aios` pode resolver para o pacote local em vez do publicado.');
+    console.warn('Prefira `node bin/aios.js bootstrap` para evitar ambiguidade.');
+  }
+
   if (!fs.existsSync(targetDir) || force) {
     copyDirectory(templateDir, targetDir, { overwrite: force });
   }
 
-  const promptFile = writeAgentPrompt(cwd);
+  const promptAlreadyExists = fs.existsSync(path.join(cwd, '.ai', 'AIOS_AGENT_PROMPT.md'));
+  const promptFile = writeAgentPrompt(cwd, { overwrite: force });
   console.log('AIOS bootstrap concluído.');
   console.log('- Estrutura .ai/ pronta.');
-  console.log(`- Prompt para agente criado em: ${path.relative(cwd, promptFile)}`);
+  if (promptAlreadyExists && !force) {
+    console.log(`- Prompt do agente preservado (já existia): ${path.relative(cwd, promptFile)}`);
+    console.log('  Use --force para sobrescrever.');
+  } else {
+    console.log(`- Prompt para agente criado em: ${path.relative(cwd, promptFile)}`);
+  }
   printSuggestedCommands(['/aios', 'aios observe', 'aios plan']);
 }
 
@@ -138,7 +150,7 @@ function installAdapters() {
   if (!fs.existsSync(path.join(cwd, '.ai'))) {
     copyDirectory(templateDir, path.join(cwd, '.ai'), { overwrite: false });
   }
-  writeAgentPrompt(cwd);
+  writeAgentPrompt(cwd, { overwrite: force });
 
   const adapters = getAdapterFiles();
   const selected = target === 'all'
@@ -755,15 +767,30 @@ function copyDirectory(source, target, options = {}) {
   }
 }
 
-function writeAgentPrompt(cwd) {
+function writeAgentPrompt(cwd, options = {}) {
   if (!fs.existsSync(initPromptPath)) {
     fail(`Prompt não encontrado: ${initPromptPath}`);
   }
   const memoryDir = path.join(cwd, '.ai');
   fs.mkdirSync(memoryDir, { recursive: true });
   const promptFile = path.join(memoryDir, 'AIOS_AGENT_PROMPT.md');
+  if (fs.existsSync(promptFile) && !options.overwrite) {
+    return promptFile;
+  }
   fs.copyFileSync(initPromptPath, promptFile);
   return promptFile;
+}
+
+function isInsideSelfRepo(cwd) {
+  try {
+    const localPkgPath = path.join(cwd, 'package.json');
+    if (!fs.existsSync(localPkgPath)) return false;
+    const localPkg = JSON.parse(fs.readFileSync(localPkgPath, 'utf8'));
+    const ownPkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
+    return localPkg.name === ownPkg.name;
+  } catch {
+    return false;
+  }
 }
 
 function getMissingFiles(memoryDir) {

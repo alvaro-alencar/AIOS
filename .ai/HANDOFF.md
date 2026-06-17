@@ -2,11 +2,11 @@
 
 ## Resumo executivo
 
-[observado] documentação pós-MVP atualizada: cli-roadmap.md corrigido (acentos + remoção de RFC futura doctor), examples/README.md criado com estudos de caso reais, DECISIONS.md atualizado com estratégia de exemplos, README.md aponta para examples/
+[observado] M3 e M4 concluídos, bin/aios.js corrigido
 
 ## Estado atual
 
-[observado] Sessão encerrada em 2026-06-16T19:54:24.497Z.
+[observado] Sessão encerrada em 2026-06-17T13:37:43.271Z.
 
 ## Branch
 
@@ -15,17 +15,18 @@
 ## Estado do Git
 
 ```txt
-M .ai/DECISIONS.md
- M README.md
+M .ai/CONTEXT.md
+ M .ai/HANDOFF.md
+ M .ai/LOG.md
+ M .ai/SESSION.md
+ M .ai/TODO.md
+ M .ai/VALIDATION_CHECKLIST.md
  M bin/aios.js
- M docs/cli-roadmap.md
- M test/cli.test.js
-?? examples/
 ```
 
 ## Próximo passo recomendado
 
-1. [pendencia] executar Rodada 1 de validação: abrir ga-core em sessão nova, digitar /aios, medir se agente assume trabalho sem contexto prévio
+1. [pendencia] commitar e executar M5 em ga-core
 
 ## Primeiros minutos do próximo agente
 

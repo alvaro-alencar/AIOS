@@ -53,8 +53,7 @@ aios status
 aios handoff
 ```
 
-> [risco] Usar `/tmp/` em scripts de validação é Unix-only. No Windows use `$env:TEMP`.
-> [pendência] Bug registrado: npx dentro do próprio repo AIOS no Windows pode usar pacote local. Não rodar `npx @alvaro-alencar/aios bootstrap` de dentro do diretório do repo AIOS no Windows até o bug ser corrigido.
+> Cada plataforma tem seu bloco separado acima. Use o bloco correspondente ao seu SO.
 
 ## Teste de adaptadores
 
@@ -83,4 +82,4 @@ npx @alvaro-alencar/aios install all
 - [risco] Quebrar cópia recursiva do template.
 - [risco] `aios init --force` sobrescrever memória customizada.
 - [risco] `aios audit` dar falsa sensação de validação completa.
-- [risco] `npx` dentro do próprio repo AIOS no Windows resolver para pacote local.
+- [observado] `npx` dentro do próprio repo AIOS no Windows: mitigado em 2026-06-17 — `bootstrap` detecta self-repo e avisa; `writeAgentPrompt` preserva arquivo existente sem `--force`.

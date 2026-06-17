@@ -6,9 +6,9 @@
 
 [observado] A implementação padrão do protocolo é uma pasta `.ai/` dentro do repositório do projeto.
 
-[observado] Versão atual no repositório: `@alvaro-alencar/aios@0.1.2` (`package.json`).
+[observado] Versão atual no repositório: `@alvaro-alencar/aios@0.1.3` (`package.json`).
 
-[exige confirmação] Esta sessão não verificou se `@alvaro-alencar/aios@0.1.2` já está publicada no npm.
+[observado] `@alvaro-alencar/aios@0.1.3` confirmada como publicada no npm pelo usuário em 2026-06-17.
 
 ## Problema resolvido
 

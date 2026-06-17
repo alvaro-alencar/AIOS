@@ -2,19 +2,19 @@
 
 ## Bugs conhecidos
 
-- [ ] [bug][risco] **npx dentro do próprio repo AIOS no Windows**: ao rodar `npx @alvaro-alencar/aios bootstrap` de dentro do diretório do repo AIOS, o npm pode resolver para o pacote LOCAL (pois `package.json` tem o mesmo nome `@alvaro-alencar/aios`). Além disso, `.ai/AIOS_AGENT_PROMPT.md` é sobrescrito com o prompt genérico de outros projetos (`prompts/init-project-memory.md`), o que confunde agentes de IA que entram no repo. O CLAUDE.md instalado dentro do repo também instrui agentes a rodar esse comando, criando um loop problemático. **Reprodução**: Windows, dentro de `C:\Users\...\AIOS\`, rodar `npx @alvaro-alencar/aios bootstrap`.
+- [x] [observado] ~~Bug `npx` dentro do próprio repo AIOS no Windows~~ **corrigido em 2026-06-17**: `writeAgentPrompt` agora respeita arquivo existente (não sobrescreve sem `--force`); `bootstrap` detecta self-repo via `isInsideSelfRepo()` e emite aviso guiando o usuário a usar `node bin/aios.js`. 25 testes passando.
 
 - [ ] [bug] **Validação multiplataforma ainda precisa ser harmonizada**: `VALIDATION_CHECKLIST.md` já possui seção Windows com `$env:TEMP`, mas ainda mantém teste Linux/macOS com `/tmp/` e aviso de risco. Decidir se o checklist deve manter blocos separados ou adotar comando baseado em diretório temporário multiplataforma.
 
 ## Urgente
 
 - [ ] [pendencia] Decidir se `.claude/` deve ser ignorado, versionado ou removido localmente.
-- [ ] [pendencia] Confirmar publicação npm de `@alvaro-alencar/aios@0.1.2` e criar GitHub Release correspondente com changelog.
+- [x] [observado] `@alvaro-alencar/aios@0.1.3` publicada no npm — confirmado pelo usuário em 2026-06-17. Criar GitHub Release correspondente com changelog ainda pendente.
 
 ## Alta prioridade
 
-- [ ] [pendencia] Registrar e corrigir o bug do `npx` dentro do próprio repo no Windows (ver Bugs acima).
-- [ ] [pendencia] Harmonizar `VALIDATION_CHECKLIST.md` sobre uso de `/tmp/` e `$env:TEMP`.
+- [x] [observado] Bug `npx` dentro do próprio repo no Windows corrigido em 2026-06-17: `writeAgentPrompt` preserva arquivo existente; `bootstrap` detecta self-repo e emite aviso claro.
+- [x] [observado] `VALIDATION_CHECKLIST.md` harmonizado em 2026-06-17: blocos separados por plataforma mantidos, pendência do bug npx removida (corrigido em M3), risco npx convertido em nota de resolução.
 - [ ] [pendencia] Melhorar `aios audit` para detectar arquivos não rastreados no git que são relevantes para a memória AIOS.
 - [ ] [pendencia] Melhorar `aios audit` para detectar placeholders `[exige confirmacao]` e arquivos com conteúdo genérico/template.
 
@@ -23,7 +23,7 @@
 - [x] [observado] Evoluído o modo PLAN para sugerir milestones verificáveis com objetivo, critério de sucesso, validações/comandos sugeridos, riscos, rollback e próximo passo.
 - [ ] [pendencia] Criar exemplos reais em `examples/` (uso do AIOS em projeto externo).
 - [ ] [pendencia] Criar documentação de uso no Windows (caminhos, `npx`, `npm link`).
-- [ ] [pendencia] Publicar v0.1.2 após correções de bugs, se ainda não tiver sido publicada.
+- [ ] [pendencia] Criar GitHub Release para v0.1.3 com changelog.
 - [ ] [pendencia] Criar issues de roadmap no GitHub para: adaptadores adicionais, validador semântico, exemplos reais.
 - [ ] [pendencia] RFC futura: avaliar `aios doctor` como comando de diagnóstico de saúde AIOS.
 

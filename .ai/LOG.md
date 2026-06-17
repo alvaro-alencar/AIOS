@@ -250,6 +250,37 @@ Codex
 - [pendencia] Decidir destino de `.claude/`.
 - [pendencia] Confirmar publicação npm de `0.1.2`.
 
+## 2026-06-17 - OBSERVE + PLAN + close
+
+### Agente
+
+Claude Code (Sonnet 4.6)
+
+### Objetivo
+
+Auditar estado do repositório, comparar com memória `.ai/`, definir plano de próximos passos e encerrar sessão.
+
+### Ações executadas
+
+- [observado] OBSERVE completo: lidos todos os arquivos `.ai/`, `git status`, `git log`, `package.json`, pasta `examples/`.
+- [observado] Divergências detectadas e reportadas: versão (0.1.2→0.1.3), working tree (suja→limpa), commit `7ba828f` não registrado, `examples/` não rastreada→commitada.
+- [observado] PLAN gerado com 5 milestones verificáveis priorizados (M1→M5).
+- [observado] Usuário confirmou que `@alvaro-alencar/aios@0.1.3` está publicada no npm — M2 concluído.
+- [observado] Memória `.ai/` sincronizada: CONTEXT.md (versão), SESSION.md, HANDOFF.md, TODO.md (npm 0.1.3 marcado), LOG.md.
+
+### Código de produção alterado
+
+Nenhum.
+
+### Pendências abertas ao encerrar
+
+- [pendencia] M3: bug `npx` dentro do próprio repo no Windows.
+- [pendencia] M4: harmonizar VALIDATION_CHECKLIST.md para Windows.
+- [pendencia] M5: Rodada 1 de validação de adoção (ga-core — sessão nova).
+- [pendencia] GitHub Release para v0.1.3.
+
+---
+
 ## 2026-06-16T19:54:24.497Z - Sessão encerrada via AIOS CLI
 
 ### Resumo
@@ -274,3 +305,29 @@ M .ai/DECISIONS.md
 ### Próximo passo
 
 [pendencia] executar Rodada 1 de validação: abrir ga-core em sessão nova, digitar /aios, medir se agente assume trabalho sem contexto prévio
+
+## 2026-06-17T13:37:43.271Z - Sessão encerrada via AIOS CLI
+
+### Resumo
+
+[observado] M3 e M4 concluídos, bin/aios.js corrigido
+
+### Branch
+
+[observado] main
+
+### Estado do Git
+
+```txt
+M .ai/CONTEXT.md
+ M .ai/HANDOFF.md
+ M .ai/LOG.md
+ M .ai/SESSION.md
+ M .ai/TODO.md
+ M .ai/VALIDATION_CHECKLIST.md
+ M bin/aios.js
+```
+
+### Próximo passo
+
+[pendencia] commitar e executar M5 em ga-core
