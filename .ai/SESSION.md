@@ -2,7 +2,7 @@
 
 ## Data/hora da última atualização
 
-[observado] 2026-06-17T14:26:27.641Z
+[observado] 2026-06-17T14:29:26.242Z
 
 ## Branch atual
 
@@ -11,16 +11,12 @@
 ## Estado do Git
 
 ```txt
-M .ai/HANDOFF.md
- M .ai/LOG.md
- M .ai/SESSION.md
- M bin/aios.js
- M test/cli.test.js
+limpo
 ```
 
 ## Última atividade observada
 
-[observado] flag --commit implementada e testada
+[observado] feat --commit publicado
 
 ## Próximos passos recomendados
 
@@ -29,6 +25,8 @@ M .ai/HANDOFF.md
 ## Últimos commits
 
 ```txt
+a3c615b feat(close): add --commit flag to auto-commit .ai/ after session close
+acadff8 chore(aios): sync memory — flag --commit implementada e testada
 41c1f56 fix(bootstrap): preserve existing AIOS_AGENT_PROMPT and warn inside self-repo
 7ba828f docs: update roadmap and add case study index
 f9d989e docs(readme): add junior-friendly quickstart
@@ -37,6 +35,4 @@ f9d989e docs(readme): add junior-friendly quickstart
 f7231df chore(aios): sync agent prompt with observe mode
 8fedbaf docs: align init prompt with operational modes
 528f637 várias correções no aios
-a8e898b ajusta aios
-0873613 docs: update Cursor adapter for operational modes
 ```

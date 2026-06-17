@@ -2,11 +2,11 @@
 
 ## Resumo executivo
 
-[observado] flag --commit implementada e testada
+[observado] feat --commit publicado
 
 ## Estado atual
 
-[observado] Sessão encerrada em 2026-06-17T14:26:27.641Z.
+[observado] Sessão encerrada em 2026-06-17T14:29:26.242Z.
 
 ## Branch
 
@@ -15,11 +15,7 @@
 ## Estado do Git
 
 ```txt
-M .ai/HANDOFF.md
- M .ai/LOG.md
- M .ai/SESSION.md
- M bin/aios.js
- M test/cli.test.js
+limpo
 ```
 
 ## Próximo passo recomendado
