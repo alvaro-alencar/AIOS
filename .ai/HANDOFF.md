@@ -2,11 +2,11 @@
 
 ## Resumo executivo
 
-[observado] M3 e M4 concluídos, bin/aios.js corrigido
+[observado] flag --commit implementada e testada
 
 ## Estado atual
 
-[observado] Sessão encerrada em 2026-06-17T13:37:43.271Z.
+[observado] Sessão encerrada em 2026-06-17T14:26:27.641Z.
 
 ## Branch
 
@@ -15,18 +15,16 @@
 ## Estado do Git
 
 ```txt
-M .ai/CONTEXT.md
- M .ai/HANDOFF.md
+M .ai/HANDOFF.md
  M .ai/LOG.md
  M .ai/SESSION.md
- M .ai/TODO.md
- M .ai/VALIDATION_CHECKLIST.md
  M bin/aios.js
+ M test/cli.test.js
 ```
 
 ## Próximo passo recomendado
 
-1. [pendencia] commitar e executar M5 em ga-core
+1. [pendencia] M5 em projeto externo
 
 ## Primeiros minutos do próximo agente
 

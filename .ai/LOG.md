@@ -331,3 +331,48 @@ M .ai/CONTEXT.md
 ### Próximo passo
 
 [pendencia] commitar e executar M5 em ga-core
+
+## 2026-06-17T14:10:34.540Z - Sessão encerrada via AIOS CLI
+
+### Resumo
+
+[observado] memória sincronizada pós-push
+
+### Branch
+
+[observado] main
+
+### Estado do Git
+
+```txt
+M .ai/HANDOFF.md
+ M .ai/SESSION.md
+```
+
+### Próximo passo
+
+[pendencia] M5: abrir projeto externo e testar /aios
+
+## 2026-06-17T14:26:27.641Z - Sessão encerrada via AIOS CLI
+
+### Resumo
+
+[observado] flag --commit implementada e testada
+
+### Branch
+
+[observado] main
+
+### Estado do Git
+
+```txt
+M .ai/HANDOFF.md
+ M .ai/LOG.md
+ M .ai/SESSION.md
+ M bin/aios.js
+ M test/cli.test.js
+```
+
+### Próximo passo
+
+[pendencia] M5 em projeto externo
