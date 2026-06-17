@@ -282,6 +282,7 @@ aios handshake   # imprime o handshake universal em modo observe
 aios open        # alias de handshake
 aios prompt      # imprime o prompt completo para preencher a memória
 aios audit       # verifica estrutura AIOS, marcadores pendentes e estado Git
+aios doctor      # diagnóstico de saúde operacional da memória AIOS
 aios status      # mostra resumo operacional
 aios handoff     # imprime .ai/HANDOFF.md
 aios close       # encerra sessão e atualiza SESSION, HANDOFF e LOG
@@ -399,6 +400,8 @@ AIOS é essa camada.
 
 ## Roadmap
 
+### Entregues
+
 - [x] Publicação npm `@alvaro-alencar/aios`
 - [x] Especificação inicial do protocolo
 - [x] Especificação AIOS Handshake v1
@@ -415,15 +418,20 @@ AIOS é essa camada.
 - [x] CLI `aios status`
 - [x] CLI `aios handoff`
 - [x] CLI `aios close`
-- [x] Testes iniciais do CLI
+- [x] Testes automatizados do CLI
+- [x] CLI `aios doctor` — diagnóstico com Structural Score, Git Score e Memory Score
+- [x] Semantic Memory Validator v1 — CONTEXT, DECISIONS, LOG, CHECKLIST e consistência cruzada
+
+### Pendentes
+
+- [ ] Estudos de caso reais por tipo de projeto — ver [`examples/README.md`](examples/README.md) (ga-core, marketplace Dr. Saulo, tutoria)
+
+### Divulgação (opcional, sem prazo)
+
 - [ ] Tutorial em vídeo ou GIF curto
-- [ ] Projeto demo mínimo
-- [ ] Validador semântico de consistência da memória
-- [ ] RFC `aios doctor` para diagnóstico de saúde AIOS
-- [ ] Exemplos reais por tipo de projeto
 
 ## Status
 
 AIOS está publicado no npm como `@alvaro-alencar/aios`.
 
-A versão atual é `0.1.3`, com OBSERVE, PLAN em milestones verificáveis, ACT e CLOSE.
+A versão atual é `0.1.3`, com todos os modos operacionais (OBSERVE, PLAN, ACT, CLOSE), `aios doctor` com Semantic Memory Validator, e cobertura de testes automatizados.

@@ -249,3 +249,28 @@ Codex
 - [pendencia] Rodar validações obrigatórias finais e registrar resultado.
 - [pendencia] Decidir destino de `.claude/`.
 - [pendencia] Confirmar publicação npm de `0.1.2`.
+
+## 2026-06-16T19:54:24.497Z - Sessão encerrada via AIOS CLI
+
+### Resumo
+
+[observado] documentação pós-MVP atualizada: cli-roadmap.md corrigido (acentos + remoção de RFC futura doctor), examples/README.md criado com estudos de caso reais, DECISIONS.md atualizado com estratégia de exemplos, README.md aponta para examples/
+
+### Branch
+
+[observado] main
+
+### Estado do Git
+
+```txt
+M .ai/DECISIONS.md
+ M README.md
+ M bin/aios.js
+ M docs/cli-roadmap.md
+ M test/cli.test.js
+?? examples/
+```
+
+### Próximo passo
+
+[pendencia] executar Rodada 1 de validação: abrir ga-core em sessão nova, digitar /aios, medir se agente assume trabalho sem contexto prévio

@@ -62,6 +62,9 @@ function main() {
     case 'act':
       operationalMode('act');
       break;
+    case 'doctor':
+      doctor();
+      break;
     case 'handshake':
     case 'open':
       handshake('observe');
@@ -333,8 +336,373 @@ function closeSession() {
   printSuggestedCommands(['aios observe', 'aios handoff']);
 }
 
+function doctor() {
+  const cwd = process.cwd();
+  const memoryDir = path.join(cwd, '.ai');
+  const git = getGitSnapshot();
+
+  const observations = [];
+  const inconsistencies = [];
+  const risks = [];
+  const pending = [];
+
+  // Structural Score (0-40): -5 por arquivo ausente
+  let structuralScore = 40;
+  const missing = getMissingFiles(memoryDir);
+  if (missing.length === 0) {
+    observations.push('Estrutura .ai/ completa e compatível com AIOS v1.');
+  } else {
+    structuralScore = Math.max(0, 40 - missing.length * 5);
+    for (const f of missing) risks.push(`Arquivo ausente: .ai/${f}`);
+  }
+
+  // Git Score (0-30)
+  let gitScore = 0;
+  if (!git.isRepo) {
+    risks.push('Diretório não parece ser um repositório Git válido.');
+  } else {
+    gitScore = 30;
+    const isDirty = git.status.length > 0;
+    observations.push(`Branch atual: ${git.branch || '[desconhecida]'}`);
+    observations.push(`Estado Git: ${isDirty ? 'dirty (mudanças não commitadas detectadas)' : 'limpo'}`);
+
+    if (fs.existsSync(memoryDir)) {
+      const sessionPath = path.join(memoryDir, 'SESSION.md');
+      const handoffPath = path.join(memoryDir, 'HANDOFF.md');
+
+      if (fs.existsSync(sessionPath)) {
+        const sessionContent = fs.readFileSync(sessionPath, 'utf8');
+        if (sessionContent.includes('## Últimos commits')) {
+          const headShort = runGit('log --format=%h -1');
+          if (headShort && !sessionContent.includes(headShort)) {
+            gitScore -= 10;
+            risks.push(`SESSION.md não contém o commit HEAD atual (${headShort}). Memória pode estar desatualizada.`);
+          } else if (headShort) {
+            observations.push(`SESSION.md contém o commit HEAD atual (${headShort}).`);
+          }
+        }
+        if (isDirty) {
+          const statusBlock = sessionContent.match(/##\s*Estado do Git[\s\S]*?```txt([\s\S]*?)```/);
+          if (statusBlock && statusBlock[1].trim() === 'limpo') {
+            gitScore -= 10;
+            risks.push('SESSION.md registra estado como "limpo" mas o repositório tem mudanças não commitadas.');
+          }
+        }
+      }
+
+      if (fs.existsSync(handoffPath) && git.branch) {
+        const handoffContent = fs.readFileSync(handoffPath, 'utf8');
+        const branchMatch = handoffContent.match(/##\s*Branch[\s\S]*?\[observado\]\s+(\S+)/);
+        if (branchMatch) {
+          const recorded = branchMatch[1];
+          if (recorded !== git.branch) {
+            gitScore -= 5;
+            risks.push(`HANDOFF.md registra branch "${recorded}" mas branch atual é "${git.branch}".`);
+          } else {
+            observations.push(`HANDOFF.md: branch consistente com branch atual (${git.branch}).`);
+          }
+        }
+        if (isDirty) {
+          const statusBlock = handoffContent.match(/##\s*Estado do Git[\s\S]*?```txt([\s\S]*?)```/);
+          if (statusBlock && statusBlock[1].trim() === 'limpo') {
+            gitScore -= 5;
+            risks.push('HANDOFF.md registra estado como "limpo" mas o repositório está dirty.');
+          }
+        }
+      }
+    }
+    gitScore = Math.max(0, gitScore);
+  }
+
+  // Memory Score (0-30): validação semântica da memória operacional
+  let memoryScore = 30;
+  if (fs.existsSync(memoryDir)) {
+    memoryScore -= doctorCheckContext(memoryDir, observations, risks, inconsistencies);
+    memoryScore -= doctorCheckDecisions(memoryDir, observations, inconsistencies);
+    memoryScore -= doctorCheckLog(memoryDir, observations, inconsistencies);
+    memoryScore -= doctorCheckChecklist(memoryDir, observations, inconsistencies, pending);
+    memoryScore -= doctorCheckTodo(memoryDir, pending);
+    memoryScore -= doctorCheckCrossConsistency(memoryDir, inconsistencies);
+    memoryScore = Math.max(0, memoryScore);
+  }
+
+  const finalScore = structuralScore + gitScore + memoryScore;
+  const classification =
+    finalScore >= 90 ? 'saudável' :
+    finalScore >= 70 ? 'atenção' :
+    finalScore >= 50 ? 'risco' : 'crítico';
+
+  console.log('AIOS DOCTOR');
+  console.log('');
+
+  if (observations.length > 0) {
+    console.log('[observado]');
+    for (const obs of observations) console.log(`- ${obs}`);
+    console.log('');
+  }
+
+  if (inconsistencies.length > 0) {
+    console.log('[inconsistencia]');
+    for (const inc of inconsistencies) console.log(`- ${inc}`);
+    console.log('');
+  }
+
+  if (risks.length > 0) {
+    console.log('[risco]');
+    for (const risk of risks) console.log(`- ${risk}`);
+    console.log('');
+  }
+
+  if (pending.length > 0) {
+    console.log('[pendencia]');
+    for (const p of pending) console.log(`- ${p}`);
+    console.log('');
+  }
+
+  console.log(`Structural Score: ${structuralScore}/40`);
+  console.log(`Git Score:        ${gitScore}/30`);
+  console.log(`Memory Score:     ${memoryScore}/30`);
+  console.log(`Health Score:     ${finalScore}/100 — ${classification}`);
+
+  printSuggestedCommands([
+    'aios observe',
+    'aios plan',
+    'aios act "corrigir inconsistências de memória"',
+    'aios close --summary "diagnóstico concluído" --next "corrigir issues detectados"'
+  ]);
+}
+
+function doctorCheckContext(memoryDir, observations, risks, inconsistencies) {
+  const contextPath = path.join(memoryDir, 'CONTEXT.md');
+  if (!fs.existsSync(contextPath)) return 0;
+
+  const raw = fs.readFileSync(contextPath, 'utf8');
+  const meaningful = raw.split('\n').filter(l => l.trim() && !l.trim().startsWith('#')).join('').trim();
+  if (meaningful.length === 0) {
+    risks.push('CONTEXT.md está vazio ou contém apenas cabeçalhos sem conteúdo.');
+    return 8;
+  }
+
+  const lines = raw.split('\n');
+  let deduction = 0;
+
+  // Placeholders não preenchidos (linha termina com [exige confirmação])
+  let inCode = false;
+  const placeholders = [];
+  for (const line of lines) {
+    if (line.trim().startsWith('```')) { inCode = !inCode; continue; }
+    if (!inCode && /\[exige confirm(a|ação)\]\s*$/u.test(line)) placeholders.push(line.trim());
+  }
+  if (placeholders.length > 0) {
+    deduction += Math.min(placeholders.length * 2, 4);
+    inconsistencies.push(`CONTEXT.md tem ${placeholders.length} placeholder(s) [exige confirmação] não preenchido(s).`);
+  }
+
+  // Seções duplicadas
+  const headings = lines.filter(l => /^##\s+/.test(l)).map(l => l.trim());
+  const seenH = new Set();
+  const dupeH = [];
+  for (const h of headings) { if (seenH.has(h)) dupeH.push(h); else seenH.add(h); }
+  if (dupeH.length > 0) {
+    deduction += Math.min(dupeH.length * 2, 4);
+    for (const h of [...new Set(dupeH)]) inconsistencies.push(`CONTEXT.md tem seção duplicada: "${h}".`);
+  }
+
+  // Termos de status conflitantes
+  const conflictPairs = [
+    ['ativo', 'encerrado'], ['publicado', 'não publicado'],
+    ['habilitado', 'desabilitado'], ['completo', 'incompleto'],
+  ];
+  for (const [a, b] of conflictPairs) {
+    if (new RegExp(`\\b${a}\\b`, 'iu').test(raw) && new RegExp(`\\b${b}\\b`, 'iu').test(raw)) {
+      deduction += 2;
+      inconsistencies.push(`CONTEXT.md menciona termos possivelmente conflitantes: "${a}" e "${b}".`);
+      break;
+    }
+  }
+
+  if (deduction === 0) observations.push('CONTEXT.md: sem problemas estruturais detectados.');
+  return Math.min(deduction, 8);
+}
+
+function doctorCheckDecisions(memoryDir, observations, inconsistencies) {
+  const decisionsPath = path.join(memoryDir, 'DECISIONS.md');
+  if (!fs.existsSync(decisionsPath)) return 0;
+
+  const content = fs.readFileSync(decisionsPath, 'utf8');
+  const lines = content.split('\n');
+  let deduction = 0;
+
+  // Placeholders não preenchidos
+  let inCode = false;
+  const placeholders = [];
+  for (const line of lines) {
+    if (line.trim().startsWith('```')) { inCode = !inCode; continue; }
+    if (!inCode && /\[exige confirm(a|ação)\]\s*$/u.test(line)) placeholders.push(line.trim());
+  }
+  if (placeholders.length > 0) {
+    deduction += Math.min(placeholders.length * 2, 4);
+    inconsistencies.push(`DECISIONS.md tem ${placeholders.length} placeholder(s) [exige confirmação] não preenchido(s).`);
+  }
+
+  // Decisões duplicadas (mesmo heading ##)
+  const h2s = lines.filter(l => /^##\s+/.test(l)).map(l => l.trim());
+  const seenD = new Set();
+  const dupeD = new Set();
+  for (const h of h2s) { if (seenD.has(h)) dupeD.add(h); else seenD.add(h); }
+  if (dupeD.size > 0) {
+    deduction += Math.min(dupeD.size * 3, 6);
+    for (const h of dupeD) inconsistencies.push(`DECISIONS.md tem decisão duplicada: "${h}".`);
+  }
+
+  if (deduction === 0) observations.push('DECISIONS.md: sem duplicatas ou placeholders detectados.');
+  return Math.min(deduction, 7);
+}
+
+function doctorCheckLog(memoryDir, observations, inconsistencies) {
+  const logPath = path.join(memoryDir, 'LOG.md');
+  if (!fs.existsSync(logPath)) return 0;
+
+  const content = fs.readFileSync(logPath, 'utf8');
+  const lines = content.split('\n');
+  let deduction = 0;
+
+  // Extrair timestamps ISO de headings ## <timestamp>
+  const timestamps = [];
+  for (const line of lines) {
+    const m = line.match(/^##\s+(\d{4}-\d{2}-\d{2}T[\d:.Z+\-]+)/);
+    if (m) timestamps.push(m[1]);
+  }
+
+  if (timestamps.length >= 2) {
+    for (let i = 1; i < timestamps.length; i++) {
+      if (timestamps[i] < timestamps[i - 1]) {
+        deduction += 3;
+        inconsistencies.push('LOG.md tem timestamps fora de ordem cronológica.');
+        break;
+      }
+    }
+  }
+
+  const tsSet = new Set();
+  const dupTs = [];
+  for (const ts of timestamps) { if (tsSet.has(ts)) dupTs.push(ts); else tsSet.add(ts); }
+  if (dupTs.length > 0) {
+    deduction += Math.min(dupTs.length * 2, 4);
+    inconsistencies.push(`LOG.md tem ${dupTs.length} entrada(s) com timestamp duplicado.`);
+  }
+
+  // Entradas sem conteúdo (heading seguido imediatamente de outro heading)
+  const sections = content.split(/^##\s+/m).slice(1);
+  const emptyCount = sections.filter(s => s.split('\n').slice(1).join('\n').trim().length === 0).length;
+  if (emptyCount > 0) {
+    deduction += Math.min(emptyCount * 2, 4);
+    inconsistencies.push(`LOG.md tem ${emptyCount} entrada(s) sem conteúdo.`);
+  }
+
+  if (deduction === 0) {
+    if (timestamps.length > 0) {
+      observations.push(`LOG.md: ${timestamps.length} entrada(s) ISO em ordem cronológica correta.`);
+    } else {
+      observations.push('LOG.md: sem entradas com timestamp ISO detectadas (log manual ou vazio).');
+    }
+  }
+  return Math.min(deduction, 7);
+}
+
+function doctorCheckChecklist(memoryDir, observations, inconsistencies, pending) {
+  const checklistPath = path.join(memoryDir, 'VALIDATION_CHECKLIST.md');
+  if (!fs.existsSync(checklistPath)) return 0;
+
+  const content = fs.readFileSync(checklistPath, 'utf8');
+  const lines = content.split('\n');
+  let deduction = 0;
+
+  const placeholders = lines.filter(l =>
+    /^\s*-\s*\[\s*\]/.test(l) && /\[exige confirm(a|ação)\]\s*$/u.test(l)
+  );
+  if (placeholders.length > 0) {
+    deduction += Math.min(placeholders.length, 3);
+    pending.push(`VALIDATION_CHECKLIST.md tem ${placeholders.length} item(ns) com placeholder não preenchido.`);
+  }
+
+  if (!content.includes('npm test') && !content.includes('node --test')) {
+    deduction += 1;
+    inconsistencies.push('VALIDATION_CHECKLIST.md não menciona npm test como etapa de validação.');
+  }
+
+  if (deduction === 0) observations.push('VALIDATION_CHECKLIST.md: sem placeholders e npm test referenciado.');
+  return Math.min(deduction, 4);
+}
+
+function doctorCheckTodo(memoryDir, pending) {
+  const todoPath = path.join(memoryDir, 'TODO.md');
+  if (!fs.existsSync(todoPath)) return 0;
+
+  const todoLines = fs.readFileSync(todoPath, 'utf8').split('\n');
+  const emptyMarkers = todoLines.filter(line => {
+    const isEmptyCheckbox = /^\s*-\s*\[\s*\]\s*$/.test(line);
+    const isPlaceholderCheckbox = /^\s*-\s*\[\s*\]/.test(line) &&
+      /\[exige confirm(a|ação)\]\s*$/u.test(line);
+    return isEmptyCheckbox || isPlaceholderCheckbox;
+  });
+  if (emptyMarkers.length > 0) {
+    pending.push(`TODO.md contém ${emptyMarkers.length} marcador(es) com placeholder genérico ou sem descrição.`);
+    return Math.min(emptyMarkers.length, 5);
+  }
+  return 0;
+}
+
+function doctorCheckCrossConsistency(memoryDir, inconsistencies) {
+  let deduction = 0;
+
+  const sessionPath = path.join(memoryDir, 'SESSION.md');
+  const handoffPath = path.join(memoryDir, 'HANDOFF.md');
+  const logPath = path.join(memoryDir, 'LOG.md');
+
+  // SESSION × HANDOFF: branch registrada nos dois arquivos deve coincidir
+  if (fs.existsSync(sessionPath) && fs.existsSync(handoffPath)) {
+    const sessionBranch = extractBranchFromMemory(fs.readFileSync(sessionPath, 'utf8'));
+    const handoffBranch = extractBranchFromMemory(fs.readFileSync(handoffPath, 'utf8'));
+    if (sessionBranch && handoffBranch && sessionBranch !== handoffBranch) {
+      deduction += 2;
+      inconsistencies.push(`Inconsistência cruzada SESSION×HANDOFF: branch "${sessionBranch}" (SESSION) ≠ "${handoffBranch}" (HANDOFF).`);
+    }
+  }
+
+  // SESSION × LOG: timestamp da última atualização de SESSION deve aparecer em LOG
+  if (fs.existsSync(sessionPath) && fs.existsSync(logPath)) {
+    const sessionTs = extractTimestampFromSession(fs.readFileSync(sessionPath, 'utf8'));
+    if (sessionTs && !fs.readFileSync(logPath, 'utf8').includes(sessionTs)) {
+      deduction += 2;
+      inconsistencies.push(`SESSION.md registra timestamp "${sessionTs}" ausente em LOG.md. Sessão pode não ter sido encerrada com aios close.`);
+    }
+  }
+
+  return Math.min(deduction, 4);
+}
+
+function extractBranchFromMemory(content) {
+  // Tenta "## Branch atual" (formato SESSION do aios close)
+  const m1 = content.match(/##\s*Branch\s+atual[\s\S]*?\[observado\]\s+(\S+)/);
+  if (m1 && !isMemoryTemplatePlaceholder(m1[1])) return m1[1];
+  // Tenta "## Branch" (formato HANDOFF do aios close)
+  const m2 = content.match(/##\s*Branch[\s\S]*?\[observado\]\s+(\S+)/);
+  if (m2 && !isMemoryTemplatePlaceholder(m2[1])) return m2[1];
+  return null;
+}
+
+function isMemoryTemplatePlaceholder(value) {
+  return !value || /^Preencher/i.test(value) || value === '[desconhecida]';
+}
+
+function extractTimestampFromSession(content) {
+  const m = content.match(/##\s*Data[\s\S]*?\[observado\]\s+(\d{4}-\d{2}-\d{2}T[\d:.Z+\-]+)/);
+  return m ? m[1] : null;
+}
+
 function help() {
-  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memória .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios install [all|codex|claude|cursor|copilot] [--force]\n                                              Instala arquivos de instrução para ferramentas de IA\n  aios observe                                Modo seguro padrão: audita e orienta sem alterar código\n  aios plan                                   Gera plano em milestones verificáveis sem executar\n  aios act \"tarefa autorizada\"              Executa somente ação explicitamente autorizada\n  aios handshake                              Imprime o handshake universal /aios em modo observe\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memória com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessão e atualiza memória\n  aios --version                              Mostra versão\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado:\n  npx @alvaro-alencar/aios install all\n  aios observe\n  aios plan\n  aios act \"tarefa autorizada\"\n  aios close --summary \"o que foi feito\" --next \"próximo passo\"\n\nRegra de segurança:\n  /aios entra em OBSERVE por padrão. O agente não deve alterar código, commitar ou fazer push sem autorização explícita.`);
+  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memória .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios install [all|codex|claude|cursor|copilot] [--force]\n                                              Instala arquivos de instrução para ferramentas de IA\n  aios observe                                Modo seguro padrão: audita e orienta sem alterar código\n  aios plan                                   Gera plano em milestones verificáveis sem executar\n  aios act \"tarefa autorizada\"              Executa somente ação explicitamente autorizada\n  aios handshake                              Imprime o handshake universal /aios em modo observe\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memória com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios doctor                                 Diagnóstico de saúde operacional da memória AIOS\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessão e atualiza memória\n  aios --version                              Mostra versão\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado:\n  npx @alvaro-alencar/aios install all\n  aios observe\n  aios plan\n  aios act \"tarefa autorizada\"\n  aios close --summary \"o que foi feito\" --next \"próximo passo\"\n\nRegra de segurança:\n  /aios entra em OBSERVE por padrão. O agente não deve alterar código, commitar ou fazer push sem autorização explícita.`);
 }
 
 function version() {

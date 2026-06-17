@@ -131,3 +131,38 @@ Planos em milestones pequenos reduzem ambiguidade para agentes em ACT, melhoram 
 ### Revisar quando
 
 Quando existir `aios doctor` ou validador semântico capaz de diagnosticar qualidade da memória e dos planos.
+
+---
+
+## 2026-06-16 - Estratégia de exemplos: estudos de caso reais sobre exemplos artificiais
+
+**Status:** aceita
+**Tipo:** produto | documentação | adoção
+
+### Decisão
+
+[decisao] A pasta `examples/` conterá estudos de caso de projetos reais que usam AIOS, não exemplos de código artificial.
+
+Cada estudo de caso aponta para o repositório real, explica o que observar na `.ai/` daquele projeto e registra o que funcionou, o que exigiu ajuste e o que o template padrão não previu.
+
+### Justificativa
+
+Exemplos artificiais mostram apenas o happy path controlado e ficam estales sem manutenção ativa. Estudos de caso reais provam adoção, revelam fricção genuína e evoluem junto com os projetos.
+
+### Alternativas consideradas
+
+- Criar exemplos artificiais de API Node, frontend React e monorepo.
+- Não ter pasta `examples/` e documentar apenas via README.
+
+### Impacto
+
+[observado] `examples/README.md` criado em 2026-06-16 com: AIOS (self-dogfooding, completo) e placeholders para ga-core, marketplace Dr. Saulo e tutoria.
+
+### Riscos
+
+[risco] Estudos de caso podem ficar desatualizados se os projetos reais evoluírem sem atualizar `examples/`.
+[risco] Projetos privados não podem ser referenciados publicamente sem autorização explícita dos donos.
+
+### Revisar quando
+
+Quando o primeiro estudo de caso externo (ga-core ou outro) for documentado com detalhes reais.

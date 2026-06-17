@@ -1,61 +1,43 @@
-# SESSION - Estado Atual do AIOS
+# SESSION - Estado Atual
 
 ## Data/hora da última atualização
 
-[observado] 2026-06-16, auditoria OBSERVE feita por Codex.
+[observado] 2026-06-16T19:54:24.497Z
 
 ## Branch atual
 
-[observado] `main` - `git status --branch --short` mostra `## main...origin/main`.
+[observado] main
 
-## Estado do projeto
+## Estado do Git
 
-[observado] `package.json` local está em `@alvaro-alencar/aios@0.1.2`.
+```txt
+M .ai/DECISIONS.md
+ M README.md
+ M bin/aios.js
+ M docs/cli-roadmap.md
+ M test/cli.test.js
+?? examples/
+```
 
-[exige confirmacao] Esta sessão não verificou se a versão `0.1.2` já está publicada no npm.
+## Última atividade observada
 
-[observado] O CLI local inclui `aios observe`, `aios plan` e `aios act`, além de `aios install` com suporte a adaptadores para Claude, Codex, Cursor e Copilot.
-
-[observado] `aios plan` foi evoluído para orientar planos em milestones verificáveis com objetivo, critério de sucesso, validações/comandos sugeridos, riscos, rollback e próximo passo.
-
-[observado] O repositório contém: protocolo, handshake, template padrão, prompt universal, memória própria, CLI Node.js, adaptadores e testes automatizados.
-
-## Arquivos não rastreados no git (untracked)
-
-[observado] `git status --short` mostra atualmente apenas:
-
-- `.claude/` - diretório local não rastreado.
-
-[observado] `git ls-files` confirma que `.ai/AIOS_AGENT_PROMPT.md`, `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/aios.mdc` e `.github/copilot-instructions.md` já estão rastreados.
-
-[inferencia] `.claude/settings.local.json` parece configuração local de ferramenta e precisa de decisão explícita antes de ser versionado ou ignorado.
-
-## Comandos implementados e disponíveis
-
-[observado] `aios init`, `aios bootstrap`, `aios install`, `aios observe`, `aios plan`, `aios act`, `aios audit`, `aios status`, `aios handoff`, `aios close`, `aios handshake`, `aios open`, `aios prompt`, `aios --help`, `aios --version`.
-
-## Testes automatizados
-
-[observado] `test/cli.test.js` existe e cobre: help, version, init, bootstrap, install (all e individual), observe, plan, act, adapter instructions, handshake, audit e close.
-
-[observado] Em 2026-06-16, `npm run check`, `npm test` e `npm run smoke` foram executados com sucesso; `npm test` passou 14 testes.
+[observado] documentação pós-MVP atualizada: cli-roadmap.md corrigido (acentos + remoção de RFC futura doctor), examples/README.md criado com estudos de caso reais, DECISIONS.md atualizado com estratégia de exemplos, README.md aponta para examples/
 
 ## Próximos passos recomendados
 
-1. [pendencia] Decidir se `.claude/` deve ser ignorado, versionado ou removido localmente.
-2. [pendencia] Confirmar publicação npm de `@alvaro-alencar/aios@0.1.2` e criar GitHub Release correspondente.
-3. [pendencia] Registrar e corrigir o bug de `npx` dentro do próprio repo no Windows.
-4. [pendencia] Harmonizar TODO e checklist sobre validação Windows/`/tmp`, já que `VALIDATION_CHECKLIST.md` possui seção Windows mas ainda registra risco pendente.
-5. [pendencia] Avaliar RFC futura `aios doctor` como diagnóstico de saúde AIOS.
+1. [pendencia] executar Rodada 1 de validação: abrir ga-core em sessão nova, digitar /aios, medir se agente assume trabalho sem contexto prévio
 
-## Riscos imediatos
+## Últimos commits
 
-- [risco] Bug: `npx @alvaro-alencar/aios bootstrap` dentro do próprio repo AIOS no Windows pode usar o pacote local (mesmo nome no package.json) e sobrescreve `.ai/AIOS_AGENT_PROMPT.md` com o prompt genérico, confundindo agentes.
-- [risco] `CLAUDE.md` instalado no repo instrui agentes a rodar `npx @alvaro-alencar/aios bootstrap` - dentro do repo AIOS, isso cria um loop problemático no Windows.
-- [risco] Mudanças pós-publicação (modos operacionais, adaptadores, testes) podem ainda não estar distribuídas no npm se `0.1.2` não tiver sido publicada.
-
-## Dúvidas abertas
-
-- [exige confirmacao] O diretório `.claude/` deve ser ignorado, versionado ou removido localmente?
-- [exige confirmacao] A versão `0.1.2` já foi publicada no npm?
-- [exige confirmacao] Qual será o próximo projeto real usado como teste público do AIOS?
+```txt
+f9d989e docs(readme): add junior-friendly quickstart
+6a42a9b 0.1.3
+9528f16 feat(aios): add verifiable milestones and operational refinements
+f7231df chore(aios): sync agent prompt with observe mode
+8fedbaf docs: align init prompt with operational modes
+528f637 várias correções no aios
+a8e898b ajusta aios
+0873613 docs: update Cursor adapter for operational modes
+ff13e26 chore: bump version to 0.1.2
+ad1ce10 docs: update Copilot adapter for operational modes
+```

@@ -21,6 +21,16 @@ function tempProject() {
   return dir;
 }
 
+function tempProjectWithCommit() {
+  const dir = tempProject();
+  execFileSync('git', ['config', 'user.email', 'test@aios.local'], { cwd: dir, stdio: 'ignore' });
+  execFileSync('git', ['config', 'user.name', 'AIOS Test'], { cwd: dir, stdio: 'ignore' });
+  fs.writeFileSync(path.join(dir, '.gitkeep'), '', 'utf8');
+  execFileSync('git', ['add', '.gitkeep'], { cwd: dir, stdio: 'ignore' });
+  execFileSync('git', ['commit', '-m', 'initial'], { cwd: dir, stdio: 'ignore' });
+  return dir;
+}
+
 test('help prints usage', () => {
   const output = run(['--help'], process.cwd());
   assert.match(output, /AIOS/);
@@ -162,4 +172,210 @@ test('close updates session, handoff and log', () => {
   assert.match(session, /Teste encerrado/);
   assert.match(handoff, /Continuar validacao/);
   assert.match(log, /Sess.o encerrada via AIOS CLI/);
+});
+
+test('doctor prints AIOS DOCTOR header and health score', () => {
+  const output = run(['doctor'], process.cwd());
+  assert.match(output, /AIOS DOCTOR/);
+  assert.match(output, /Health Score:/);
+  assert.match(output, /Próximos comandos AIOS sugeridos/);
+});
+
+test('doctor on fresh init detects template placeholders in TODO', () => {
+  const dir = tempProject();
+  run(['init'], dir);
+  const output = run(['doctor'], dir);
+  assert.match(output, /AIOS DOCTOR/);
+  assert.match(output, /Health Score:/);
+  assert.match(output, /\[pendencia\]/);
+  assert.match(output, /placeholder/);
+});
+
+test('doctor detects missing memory structure', () => {
+  const dir = tempProject();
+  const output = run(['doctor'], dir);
+  assert.match(output, /AIOS DOCTOR/);
+  assert.match(output, /\[risco\]/);
+  assert.match(output, /ausente/);
+  const scoreMatch = output.match(/Health Score:\s*(\d+)/);
+  assert.ok(scoreMatch, 'output deve conter Health Score');
+  assert.ok(parseInt(scoreMatch[1], 10) < 70, `Score deveria ser baixo sem .ai/, obtido: ${scoreMatch[1]}`);
+});
+
+test('doctor detects branch inconsistency in HANDOFF', () => {
+  const dir = tempProjectWithCommit();
+  run(['init'], dir);
+  const handoffPath = path.join(dir, '.ai/HANDOFF.md');
+  fs.writeFileSync(handoffPath, [
+    '# HANDOFF',
+    '',
+    '## Branch',
+    '',
+    '[observado] branch-inexistente',
+    '',
+    '## Estado do Git',
+    '',
+    '```txt',
+    'limpo',
+    '```',
+  ].join('\n'), 'utf8');
+  const output = run(['doctor'], dir);
+  assert.match(output, /\[risco\]/);
+  assert.match(output, /branch-inexistente/);
+});
+
+test('doctor displays sub-scores', () => {
+  const output = run(['doctor'], process.cwd());
+  assert.match(output, /Structural Score:/);
+  assert.match(output, /Git Score:/);
+  assert.match(output, /Memory Score:/);
+  assert.match(output, /Health Score:/);
+});
+
+test('doctor detects empty CONTEXT.md', () => {
+  const dir = tempProject();
+  run(['init'], dir);
+  fs.writeFileSync(path.join(dir, '.ai/CONTEXT.md'), '', 'utf8');
+  const output = run(['doctor'], dir);
+  assert.match(output, /\[risco\]/);
+  assert.match(output, /CONTEXT\.md/);
+  assert.match(output, /vaz/);
+});
+
+test('doctor detects duplicate decisions in DECISIONS.md', () => {
+  const dir = tempProject();
+  run(['init'], dir);
+  fs.writeFileSync(path.join(dir, '.ai/DECISIONS.md'), [
+    '# DECISIONS',
+    '',
+    '## 2026-01-01 — Decisão A',
+    '',
+    '### Decisão',
+    '',
+    'Usar Node.js.',
+    '',
+    '## 2026-01-01 — Decisão A',
+    '',
+    '### Decisão',
+    '',
+    'Entrada duplicada.',
+  ].join('\n'), 'utf8');
+  const output = run(['doctor'], dir);
+  assert.match(output, /\[inconsistencia\]/);
+  assert.match(output, /duplicad/i);
+});
+
+test('doctor detects out-of-order timestamps in LOG', () => {
+  const dir = tempProject();
+  run(['init'], dir);
+  fs.writeFileSync(path.join(dir, '.ai/LOG.md'), [
+    '# LOG',
+    '',
+    '## 2026-06-16T10:00:00.000Z - Entrada mais recente',
+    '',
+    'Conteúdo da entrada mais recente.',
+    '',
+    '## 2026-06-15T10:00:00.000Z - Entrada mais antiga',
+    '',
+    'Conteúdo da entrada mais antiga (timestamp anterior).',
+  ].join('\n'), 'utf8');
+  const output = run(['doctor'], dir);
+  assert.match(output, /\[inconsistencia\]/);
+  assert.match(output, /ordem/);
+});
+
+test('doctor detects SESSION×HANDOFF branch cross-inconsistency', () => {
+  const dir = tempProjectWithCommit();
+  run(['init'], dir);
+  fs.writeFileSync(path.join(dir, '.ai/SESSION.md'), [
+    '# SESSION',
+    '',
+    '## Branch atual',
+    '',
+    '[observado] branch-sessao',
+    '',
+    '## Estado do Git',
+    '',
+    '```txt',
+    'limpo',
+    '```',
+  ].join('\n'), 'utf8');
+  fs.writeFileSync(path.join(dir, '.ai/HANDOFF.md'), [
+    '# HANDOFF',
+    '',
+    '## Branch',
+    '',
+    '[observado] branch-handoff',
+    '',
+    '## Estado do Git',
+    '',
+    '```txt',
+    'limpo',
+    '```',
+  ].join('\n'), 'utf8');
+  const output = run(['doctor'], dir);
+  assert.match(output, /\[inconsistencia\]/);
+  assert.match(output, /SESSION.*HANDOFF|cruzad/i);
+});
+
+test('doctor detects SESSION timestamp absent from LOG', () => {
+  const dir = tempProject();
+  run(['init'], dir);
+  const ts = '2026-01-01T00:00:00.000Z';
+  fs.writeFileSync(path.join(dir, '.ai/SESSION.md'), [
+    '# SESSION',
+    '',
+    '## Data/hora da última atualização',
+    '',
+    `[observado] ${ts}`,
+    '',
+    '## Branch atual',
+    '',
+    '[observado] main',
+  ].join('\n'), 'utf8');
+  const output = run(['doctor'], dir);
+  assert.match(output, /\[inconsistencia\]/);
+  assert.match(output, /timestamp|LOG/i);
+});
+
+test('doctor detects dirty repo when SESSION says limpo', () => {
+  const dir = tempProject();
+  run(['init'], dir);
+  const sessionPath = path.join(dir, '.ai/SESSION.md');
+  fs.writeFileSync(sessionPath, [
+    '# SESSION - Estado Atual',
+    '',
+    '## Data/hora da última atualização',
+    '',
+    '[observado] 2026-01-01T00:00:00.000Z',
+    '',
+    '## Branch atual',
+    '',
+    '[observado] main',
+    '',
+    '## Estado do Git',
+    '',
+    '```txt',
+    'limpo',
+    '```',
+    '',
+    '## Última atividade observada',
+    '',
+    '[observado] Teste encerrado',
+    '',
+    '## Próximos passos recomendados',
+    '',
+    '1. [pendencia] Continuar',
+    '',
+    '## Últimos commits',
+    '',
+    '```txt',
+    'abc1234 commit inicial',
+    '```',
+  ].join('\n'), 'utf8');
+  fs.writeFileSync(path.join(dir, 'arquivo-sujo.txt'), 'conteudo', 'utf8');
+  const output = run(['doctor'], dir);
+  assert.match(output, /AIOS DOCTOR/);
+  assert.match(output, /\[risco\]/);
+  assert.match(output, /dirty/);
 });
