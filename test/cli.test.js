@@ -338,6 +338,23 @@ test('doctor detects SESSION timestamp absent from LOG', () => {
   assert.match(output, /timestamp|LOG/i);
 });
 
+test('close --commit creates a git commit for .ai/ files', () => {
+  const dir = tempProjectWithCommit();
+  run(['init'], dir);
+  const output = run(['close', '--summary', 'Teste com commit', '--next', 'Continuar', '--commit'], dir);
+  assert.match(output, /Commit .ai\/ criado/);
+  const gitLog = execFileSync('git', ['log', '--oneline', '-1'], { cwd: dir, encoding: 'utf8' });
+  assert.match(gitLog, /chore\(aios\): sync memory/);
+});
+
+test('close --commit is idempotent when nothing to commit', () => {
+  const dir = tempProjectWithCommit();
+  run(['init'], dir);
+  run(['close', '--summary', 'Primeira vez', '--next', 'Continuar', '--commit'], dir);
+  const output = run(['close', '--summary', 'Segunda vez', '--next', 'Continuar', '--commit'], dir);
+  assert.match(output, /aviso|Commit .ai\/ criado/);
+});
+
 test('doctor detects dirty repo when SESSION says limpo', () => {
   const dir = tempProject();
   run(['init'], dir);

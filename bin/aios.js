@@ -314,6 +314,7 @@ function closeSession() {
   const memoryDir = path.join(cwd, '.ai');
   const summary = getFlagValue('--summary') ?? 'Sessão encerrada via AIOS CLI.';
   const next = getFlagValue('--next') ?? 'Revisar .ai/HANDOFF.md e comparar memória com o estado real do repositório.';
+  const shouldCommit = flags.has('--commit');
 
   if (!fs.existsSync(memoryDir)) {
     fail('Não encontrei .ai/. Rode `aios init` primeiro.');
@@ -345,6 +346,19 @@ function closeSession() {
   console.log('- .ai/SESSION.md');
   console.log('- .ai/HANDOFF.md');
   console.log('- .ai/LOG.md');
+
+  if (shouldCommit) {
+    try {
+      execSync('git add .ai/', { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+      const shortSummary = summary.length > 50 ? summary.slice(0, 47) + '...' : summary;
+      const commitMsg = `chore(aios): sync memory — ${shortSummary}`;
+      execSync(`git commit -m ${JSON.stringify(commitMsg)}`, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+      console.log(`Commit .ai/ criado: ${commitMsg}`);
+    } catch {
+      console.log('[aviso] --commit: nada a commitar em .ai/ ou repositório Git indisponível.');
+    }
+  }
+
   printSuggestedCommands(['aios observe', 'aios handoff']);
 }
 
@@ -714,7 +728,7 @@ function extractTimestampFromSession(content) {
 }
 
 function help() {
-  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memória .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios install [all|codex|claude|cursor|copilot] [--force]\n                                              Instala arquivos de instrução para ferramentas de IA\n  aios observe                                Modo seguro padrão: audita e orienta sem alterar código\n  aios plan                                   Gera plano em milestones verificáveis sem executar\n  aios act \"tarefa autorizada\"              Executa somente ação explicitamente autorizada\n  aios handshake                              Imprime o handshake universal /aios em modo observe\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memória com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios doctor                                 Diagnóstico de saúde operacional da memória AIOS\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\"   Encerra sessão e atualiza memória\n  aios --version                              Mostra versão\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado:\n  npx @alvaro-alencar/aios install all\n  aios observe\n  aios plan\n  aios act \"tarefa autorizada\"\n  aios close --summary \"o que foi feito\" --next \"próximo passo\"\n\nRegra de segurança:\n  /aios entra em OBSERVE por padrão. O agente não deve alterar código, commitar ou fazer push sem autorização explícita.`);
+  console.log(`AIOS - Agent Intelligence Operating System\n\nUso:\n  aios init [--force] [--with-prompt]         Cria a memória .ai/ no projeto atual\n  aios bootstrap [--force]                    Cria .ai/ e .ai/AIOS_AGENT_PROMPT.md\n  aios install [all|codex|claude|cursor|copilot] [--force]\n                                              Instala arquivos de instrução para ferramentas de IA\n  aios observe                                Modo seguro padrão: audita e orienta sem alterar código\n  aios plan                                   Gera plano em milestones verificáveis sem executar\n  aios act \"tarefa autorizada\"              Executa somente ação explicitamente autorizada\n  aios handshake                              Imprime o handshake universal /aios em modo observe\n  aios open                                   Alias de handshake\n  aios prompt                                 Imprime o prompt para preencher a memória com uma IA\n  aios audit                                  Verifica estrutura AIOS, marcadores e estado Git\n  aios doctor                                 Diagnóstico de saúde operacional da memória AIOS\n  aios status                                 Mostra resumo operacional do projeto\n  aios handoff                                Imprime o handoff atual\n  aios close --summary \"...\" --next \"...\" [--commit]   Encerra sessão e atualiza memória; --commit commita .ai/ automaticamente\n  aios --version                              Mostra versão\n  aios --help                                 Mostra ajuda\n\nFluxo recomendado:\n  npx @alvaro-alencar/aios install all\n  aios observe\n  aios plan\n  aios act \"tarefa autorizada\"\n  aios close --summary \"o que foi feito\" --next \"próximo passo\"\n\nRegra de segurança:\n  /aios entra em OBSERVE por padrão. O agente não deve alterar código, commitar ou fazer push sem autorização explícita.`);
 }
 
 function version() {
